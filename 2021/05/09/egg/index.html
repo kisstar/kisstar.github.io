@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Egg.js 的启动流程 | Kisstar&#39;s 博客</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    
+    <meta name="description" content="">
+    
+    <link rel="preload" href="/assets/css/0.styles.f97a10dc.css" as="style"><link rel="preload" href="/assets/js/app.f760a5e0.js" as="script"><link rel="preload" href="/assets/js/4.3a48c712.js" as="script"><link rel="preload" href="/assets/js/12.bd0d5614.js" as="script"><link rel="prefetch" href="/assets/js/10.b1eecfee.js"><link rel="prefetch" href="/assets/js/11.af051a60.js"><link rel="prefetch" href="/assets/js/13.6a4da3e4.js"><link rel="prefetch" href="/assets/js/14.cd5b350f.js"><link rel="prefetch" href="/assets/js/15.9d3464b7.js"><link rel="prefetch" href="/assets/js/3.80dd2c2e.js"><link rel="prefetch" href="/assets/js/5.7e1b4556.js"><link rel="prefetch" href="/assets/js/6.19264b32.js"><link rel="prefetch" href="/assets/js/7.5d663933.js"><link rel="prefetch" href="/assets/js/8.839140df.js"><link rel="prefetch" href="/assets/js/9.828c9a88.js"><link rel="prefetch" href="/assets/js/vuejs-paginate.dacd362e.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.f97a10dc.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container post"><div class="theme-extreme"><header class="navbar fixed"><a href="/" class="navbar-brand router-link-active"><img src="/assets/img/logo.46de8c82.png" alt="Kisstar's 博客" class="logo"> <span>Kisstar's 博客</span></a> <button type="button" class="navbar-toggler"><svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="36"><path d="M128 469.333333m40.533333 0l686.933334 0q40.533333 0 40.533333 40.533334l0 4.266666q0 40.533333-40.533333 40.533334l-686.933334 0q-40.533333 0-40.533333-40.533334l0-4.266666q0-40.533333 40.533333-40.533334Z" fill="white"></path> <path d="M128 682.666667m40.533333 0l686.933334 0q40.533333 0 40.533333 40.533333l0 4.266667q0 40.533333-40.533333 40.533333l-686.933334 0q-40.533333 0-40.533333-40.533333l0-4.266667q0-40.533333 40.533333-40.533333Z" fill="white"></path> <path d="M128 256m40.533333 0l686.933334 0q40.533333 0 40.533333 40.533333l0 4.266667q0 40.533333-40.533333 40.533333l-686.933334 0q-40.533333 0-40.533333-40.533333l0-4.266667q0-40.533333 40.533333-40.533333Z" fill="white"></path></svg></button> <div class="navbar-collapse"><ul class="navbar-nav"><li class="navbar-item"><a href="https://juejin.cn/user/870468942050759" target="_blank" rel="noopener noreferrer">
+  掘金
+</a></li><li class="navbar-item"><a href="https://segmentfault.com/u/dongwanhong/" target="_blank" rel="noopener noreferrer">
+  思否
+</a></li><li class="navbar-item"><a href="https://dongwanhong.gitee.io/notebook/" target="_blank" rel="noopener noreferrer">
+  笔记
+</a></li><li class="navbar-item"><a href="https://dongwanhong.gitee.io/source-code/" target="_blank" rel="noopener noreferrer">
+  案列
+</a></li><li class="navbar-item"><a href="https://github.com/kisstar" target="_blank" rel="noopener noreferrer">
+  GitHub
+</a></li></ul></div></header> <main class="theme-content"><article class="post-body"><div class="post-meta"><h1>Egg.js 的启动流程</h1> <div class="post-meta-author"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg> <span>Kisstar</span> <span> 在北京</span></div> <div class="post-meta-date"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle> <polyline points="12 6 12 12 16 14"></polyline></svg> <time pubdate datetime="2021-05-09T00:00:00.000Z">
+      2021-05-09
+    </time></div> <ul class="post-meta-tags"><li class="post-tag"><a href="/tag/Node.js"><span>Node.js</span></a></li><li class="post-tag"><a href="/tag/Egg.js"><span>Egg.js</span></a></li></ul></div> <div class="content__default"><img src="/images/nodejs/eggjs.png" alt="egg.js"> <p>Egg.js 为企业级框架和应用而生，其奉行『约定优于配置』，按照一套统一的约定进行应用开发，团队内部采用这种方式可以减少开发人员的学习成本。</p> <p>在使用的过程中你是否有如下的疑惑：</p> <ul><li>项目中没有入口文件，服务是如何启动的？</li> <li>控制器和服务都在各自的目录下声明，最终是如何出现在 <code>app</code> 对象上的？</li></ul> <p>带着上面的问题我们来看一下 Egg.js 的启动流程。</p> <h2 id="egg-bin"><a href="#egg-bin" class="header-anchor">#</a> egg-bin</h2> <p>根据官方文档<a href="https://eggjs.org/zh-cn/intro/quickstart.html" target="_blank" rel="noopener noreferrer">快速入门<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>中的介绍，我们可以通过命令快速创建一个 Egg 项目：</p> <div class="language-bash extra-class"><pre class="language-bash"><code><span class="token function">mkdir</span> egg-example <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">cd</span> egg-example
+<span class="token function">npm</span> init egg --type<span class="token operator">=</span>simple
+<span class="token function">npm</span> i
+</code></pre></div><p>然后运行 <code>npm run debug</code> 命令就可以启动项目了，那么这个启动命令到底做了什么？</p> <p>查看项目根目录下的 package.json 文件中，我们可以看到该命令最终执行的是 <code>egg-bin debug</code>，<a href="https://github.com/eggjs/egg-bin" target="_blank" rel="noopener noreferrer">egg-bin<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a> 是基于 <a href="https://github.com/node-modules/common-bin" target="_blank" rel="noopener noreferrer">common-bin<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a> 封装的 CLI 开发工具。</p> <p>CommonBin 则又是在 <a href="http://yargs.js.org/" target="_blank" rel="noopener noreferrer">yargs<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>、<a href="https://github.com/tj/co" target="_blank" rel="noopener noreferrer">co<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a> 等模块的基础上，抽象封装了一个命令行工具，提供了对 async/generator 特性的支持。</p> <img src="/images/nodejs/egg-bin.png" alt="egg-bin" style="height:300px;"> <h3 id="common-bin"><a href="#common-bin" class="header-anchor">#</a> common-bin</h3> <p>CommonBin 的核心包括 <code>load()</code> 和 <code>start()</code> 方法，前者会加载指定目录下的 JavaScript 文件，并将各个文件暴露的 Class 以文件名作为属性名存储在一个 Map 中。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: common-bin/lib/command.js</span>
+<span class="token keyword">const</span> <span class="token constant">COMMANDS</span> <span class="token operator">=</span> <span class="token function">Symbol</span><span class="token punctuation">(</span><span class="token string">'Command#commands'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">CommonBin</span> <span class="token punctuation">{</span>
+  <span class="token function">load</span><span class="token punctuation">(</span><span class="token parameter">fullPath</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// load entire directory</span>
+    <span class="token keyword">const</span> files <span class="token operator">=</span> fs<span class="token punctuation">.</span><span class="token function">readdirSync</span><span class="token punctuation">(</span>fullPath<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> names <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> file <span class="token keyword">of</span> files<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>path<span class="token punctuation">.</span><span class="token function">extname</span><span class="token punctuation">(</span>file<span class="token punctuation">)</span> <span class="token operator">===</span> <span class="token string">'.js'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">const</span> name <span class="token operator">=</span> path<span class="token punctuation">.</span><span class="token function">basename</span><span class="token punctuation">(</span>file<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">\.js$</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">,</span> <span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        names<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>name<span class="token punctuation">,</span> path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>fullPath<span class="token punctuation">,</span> file<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">add</span><span class="token punctuation">(</span><span class="token parameter">name<span class="token punctuation">,</span> target</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span>target<span class="token punctuation">.</span>prototype <span class="token keyword">instanceof</span> <span class="token class-name">CommonBin</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      target <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span>target<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token comment">// try to require es module</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>target <span class="token operator">&amp;&amp;</span> target<span class="token punctuation">.</span>__esModule <span class="token operator">&amp;&amp;</span> target<span class="token punctuation">.</span>default<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        target <span class="token operator">=</span> target<span class="token punctuation">.</span>default<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">COMMANDS</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>name<span class="token punctuation">,</span> target<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>当调用 <code>start()</code> 方法时，会执行实例上面的“DISPATCH”方法去处理，处理过程中根据情况会调用实例上的 <code>run()</code> 方法。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> <span class="token constant">DISPATCH</span> <span class="token operator">=</span> <span class="token function">Symbol</span><span class="token punctuation">(</span><span class="token string">'Command#dispatch'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">CommonBin</span> <span class="token punctuation">{</span>
+  <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">co</span><span class="token punctuation">(</span>
+      <span class="token keyword">function</span><span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">yield</span> <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">DISPATCH</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">.</span><span class="token function">bind</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token operator">*</span><span class="token punctuation">[</span><span class="token constant">DISPATCH</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 判断是否存在 Map 中</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">COMMANDS</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">has</span><span class="token punctuation">(</span>commandName<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> Command <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">COMMANDS</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>commandName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">const</span> rawArgv <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>rawArgv<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      rawArgv<span class="token punctuation">.</span><span class="token function">splice</span><span class="token punctuation">(</span>rawArgv<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span>commandName<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 处理参数，以便获取子命令</span>
+
+      <span class="token comment">// 如果存在就获取对应的值进行实例化</span>
+      <span class="token keyword">const</span> command <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getSubCommandInstance</span><span class="token punctuation">(</span>Command<span class="token punctuation">,</span> rawArgv<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token comment">// 调用实例上的 “DISPATCH” 方法，由于获取的值也继承了 CommonBin，所以还会走到该方法</span>
+      <span class="token comment">// 由于参数在第一次处理时做了改变，所以会依次递归查找子命令</span>
+      <span class="token keyword">yield</span> command<span class="token punctuation">[</span><span class="token constant">DISPATCH</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 如果没有子命令时，就会在此处定义实例上 Map 中的命令</span>
+    <span class="token comment">// 同时也会判断是否是自动补全的操作，不是的话就会调用实例上的 run 方法进行处理</span>
+
+    <span class="token keyword">yield</span> <span class="token keyword">this</span><span class="token punctuation">.</span>helper<span class="token punctuation">.</span><span class="token function">callFn</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>run<span class="token punctuation">,</span> <span class="token punctuation">[</span>context<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>我们实际命令的处理逻辑会通过 <code>run()</code> 方法来实现，而参数就是实例上的 <code>context</code> 属性的值。另外，还可以重写 <code>errorHandler()</code> 方法来处理期间发生的错误。</p> <h3 id="egg-bin-debug"><a href="#egg-bin-debug" class="header-anchor">#</a> egg-bin debug</h3> <p>回到 egg-bin，通过查看 package.json 文件，可以发现当我们执行 <code>egg-bin debug</code> 命令时就会执行 <code>bin/egg-bin.js</code> 文件。</p> <div class="language-json extra-class"><pre class="language-json"><code><span class="token comment">// @file: egg-bin/package.json</span>
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;bin&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;egg-bin&quot;</span><span class="token operator">:</span> <span class="token string">&quot;bin/egg-bin.js&quot;</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;mocha&quot;</span><span class="token operator">:</span> <span class="token string">&quot;bin/mocha.js&quot;</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;ets&quot;</span><span class="token operator">:</span> <span class="token string">&quot;bin/ets.js&quot;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;main&quot;</span><span class="token operator">:</span> <span class="token string">&quot;index.js&quot;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>该文件的内容比较简单，主要是执行入口文件，此时会实例化 egg-bin 扩展的类，然后调用实例的 <code>start()</code> 方法：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-bin/bin/egg-bin.js</span>
+<span class="token keyword">const</span> Command <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'..'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">new</span> <span class="token class-name">Command</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><p>实例化时会用到我们上面提到的 <code>load()</code> 方法将 <code>lib/cmd</code> 文件夹下的命令自动挂载到实例对象下面：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-bin/index.js</span>
+<span class="token keyword">const</span> path <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'path'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> Command <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./lib/command'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 继承了 CommonBin 并重写了上下文 和 errorHandler() 方法</span>
+
+<span class="token keyword">class</span> <span class="token class-name">EggBin</span> <span class="token keyword">extends</span> <span class="token class-name">Command</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">rawArgv</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">super</span><span class="token punctuation">(</span>rawArgv<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>usage <span class="token operator">=</span> <span class="token string">'Usage: egg-bin [command] [options]'</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// load directory</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span>path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>__dirname<span class="token punctuation">,</span> <span class="token string">'lib/cmd'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>所以，后续在调用 <code>start()</code> 方法时，根据传递的参数会找到子命令 debug 对应的 <code>run()</code> 方法，其中最重要的就是使用子进程运行了“serverBin”文件：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-bin/lib/cmd/debug.js</span>
+<span class="token keyword">const</span> cp <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">DebugCommand</span> <span class="token punctuation">{</span>
+  <span class="token operator">*</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token parameter">context</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> eggArgs <span class="token operator">=</span> <span class="token keyword">yield</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">formatArgs</span><span class="token punctuation">(</span>context<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> options <span class="token operator">=</span> <span class="token punctuation">{</span>
+      <span class="token comment">/* ... */</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// start egg</span>
+    <span class="token keyword">const</span> child <span class="token operator">=</span> cp<span class="token punctuation">.</span><span class="token function">fork</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>serverBin<span class="token punctuation">,</span> eggArgs<span class="token punctuation">,</span> options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>事实上，debug 命令继承了 dev 命令，其中“serverBin”就是在 dev 命令对应的文件中指定的，它指向的是 <code>../start-cluster</code> 文件。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-bin/lib/cmd/dev.js</span>
+<span class="token keyword">class</span> <span class="token class-name">DevCommand</span> <span class="token keyword">extends</span> <span class="token class-name">Command</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>serverBin <span class="token operator">=</span> path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>__dirname<span class="token punctuation">,</span> <span class="token string">'../start-cluster'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// ...</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>在 <code>../start-cluster</code> 文件会加载有 <code>framework</code> 参数指定目录下的框架，并执行它暴露出来的 <code>startCluster()</code> 方法。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-bin/lib/start-cluster</span>
+<span class="token keyword">const</span> options <span class="token operator">=</span> <span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>process<span class="token punctuation">.</span>argv<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 参数在 debug 命令中执行该文件时已经处理好了，默认为 egg</span>
+<span class="token function">require</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>framework<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">startCluster</span><span class="token punctuation">(</span>options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><p>egg 模块暴露的 <code>startCluster()</code> 方法实际上是在 egg-cluster 模块中暴露的：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg/index.js</span>
+exports<span class="token punctuation">.</span>startCluster <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'egg-cluster'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>startCluster<span class="token punctuation">;</span>
+</code></pre></div><h2 id="egg-cluster"><a href="#egg-cluster" class="header-anchor">#</a> egg-cluster</h2> <p>egg-cluster 模块专门为 Egg 提供集群管理，它会在服务器上同时启动多个进程，每个进程里都跑的是同一份源代码，并且同时监听一个端口。</p> <div class="language-bash extra-class"><pre class="language-bash"><code>├── index.js
+├── lib
+│   ├── agent_worker.js <span class="token comment"># Agent Worker</span>
+│   ├── app_worker.js <span class="token comment"># App Worker</span>
+│   ├── master.js <span class="token comment"># Master 进程</span>
+│   └── utils
+│       ├── manager.js <span class="token comment"># 进程的记录和获取</span>
+│       ├── messenger.js <span class="token comment"># 进程间通讯</span>
+│       ├── options.js <span class="token comment"># 配置处理</span>
+│       └── terminate.js <span class="token comment"># 杀死进程</span>
+└── package.json
+</code></pre></div><p>在 <code>startCluster</code> 方法中会实例化 Master 来创建一个 Master 进程：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-cluster/index.js</span>
+<span class="token keyword">const</span> Master <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./lib/master'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+exports<span class="token punctuation">.</span><span class="token function-variable function">startCluster</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">options<span class="token punctuation">,</span> callback</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">new</span> <span class="token class-name">Master</span><span class="token punctuation">(</span>options<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">ready</span><span class="token punctuation">(</span>callback<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>Master 进程主要负责进程管理的工作（类似 pm2），它不做具体的工作，只负责启动其他进程，下面是所有进程的一个创建过程：</p> <div class="language-bash extra-class"><pre class="language-bash"><code>+---------+           +---------+          +---------+
+<span class="token operator">|</span>  Master <span class="token operator">|</span>           <span class="token operator">|</span>  Agent  <span class="token operator">|</span>          <span class="token operator">|</span>  Worker <span class="token operator">|</span>
++---------+           +----+----+          +----+----+
+     <span class="token operator">|</span>      fork agent     <span class="token operator">|</span>                    <span class="token operator">|</span>
+     +--------------------<span class="token operator">&gt;|</span>                    <span class="token operator">|</span>
+     <span class="token operator">|</span>      agent ready    <span class="token operator">|</span>                    <span class="token operator">|</span>
+     <span class="token operator">|</span><span class="token operator">&lt;</span>--------------------+                    <span class="token operator">|</span>
+     <span class="token operator">|</span>                     <span class="token operator">|</span>     fork worker    <span class="token operator">|</span>
+     +-----------------------------------------<span class="token operator">&gt;|</span>
+     <span class="token operator">|</span>     worker ready    <span class="token operator">|</span>                    <span class="token operator">|</span>
+     <span class="token operator">|</span><span class="token operator">&lt;</span>-----------------------------------------+
+     <span class="token operator">|</span>      Egg ready      <span class="token operator">|</span>                    <span class="token operator">|</span>
+     +--------------------<span class="token operator">&gt;|</span>                    <span class="token operator">|</span>
+     <span class="token operator">|</span>      Egg ready      <span class="token operator">|</span>                    <span class="token operator">|</span>
+     +-----------------------------------------<span class="token operator">&gt;|</span>
+</code></pre></div><p>在创建过程中 Master 和 Worker 通过事件进行通信，各个 Worker 在准备好之后都会通知 Master，等到所有所有的进程初始化成功后，Master 通知 Agent 和 Worker 应用启动成功。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-cluster/lib/master.js</span>
+<span class="token keyword">class</span> <span class="token class-name">Master</span> <span class="token keyword">extends</span> <span class="token class-name">EventEmitter</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// fork app workers after agent started</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">once</span><span class="token punctuation">(</span><span class="token string">'agent-start'</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">forkAppWorkers</span><span class="token punctuation">.</span><span class="token function">bind</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// start fork agent worker</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">detectPorts</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">forkAgentWorker</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">forkAgentWorker</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 创建 Agent Worker 并监听它的 message 事件，当 Agent Worker 内准备好后会发送 agent-start 事件</span>
+    <span class="token comment">// new Agent(options).ready(() =&gt; process.send({ action: 'agent-start', to: 'master' }));</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">forkAppWorkers</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 在 Worker 中的服务就绪时就会发送 app-start 通知 Maser 进程</span>
+    <span class="token comment">// cluster.on('listening', (worker, address) =&gt; { /* emit app-start */ });</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>其中，Worker 运行的是业务代码，负责处理真正的用户请求和定时任务的处理。接下来，我们就来看下服务是如何启动的。</p> <h2 id="application"><a href="#application" class="header-anchor">#</a> Application</h2> <p>在创建 Worker 进程时实例化了 Application 类来处理用户请求：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-cluster/lib/app_worker.js</span>
+<span class="token keyword">const</span> Application <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>framework<span class="token punctuation">)</span><span class="token punctuation">.</span>Application<span class="token punctuation">;</span>
+<span class="token keyword">const</span> app <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Application</span><span class="token punctuation">(</span>options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">ready</span><span class="token punctuation">(</span>startServer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">startServer</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'http'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">createServer</span><span class="token punctuation">(</span>app<span class="token punctuation">.</span><span class="token function">callback</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token operator">...</span>args<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>该类来自于 egg 模块，陆续继承了 EggApplication（egg）、EggCore（egg-core）和 KoaApplication（koa）类。</p> <img src="/images/nodejs/egg-app.png" alt="egg Application" style="height:300px;"> <p>根据继承关系会先初始化 KoaApplication，在 Koa 中主要是得到了 4 个核心对象（Application, Context, Request, Response) ：</p> <img src="/images/nodejs/koa.png" alt="koa" style="height:300px;"> <p>然后是 EggCore。在 EggCore 的构造函数中创建了管理生命周期 <code>lifecycle</code> 的和加载器 <code>loader</code>，并且设置了 Controller 和 Service 属性。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/egg.js</span>
+<span class="token keyword">const</span> EggConsoleLogger <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'egg-logger'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>EggConsoleLogger<span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token constant">EGG_LOADER</span> <span class="token operator">=</span> Symbol<span class="token punctuation">.</span><span class="token function">for</span><span class="token punctuation">(</span><span class="token string">'egg#loader'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> Lifecycle <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./lifecycle'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">BaseContextClass</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span>ctx <span class="token comment">/* context instance */</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>ctx <span class="token operator">=</span> ctx<span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>app <span class="token operator">=</span> ctx<span class="token punctuation">.</span>app<span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>config <span class="token operator">=</span> ctx<span class="token punctuation">.</span>app<span class="token punctuation">.</span>config<span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>service <span class="token operator">=</span> ctx<span class="token punctuation">.</span>service<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">EggCore</span> <span class="token keyword">extends</span> <span class="token class-name">KoaApplication</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">options <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>console <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">EggConsoleLogger</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>BaseContextClass <span class="token operator">=</span> BaseContextClass<span class="token punctuation">;</span>
+    <span class="token comment">// Base controller to be extended by controller in `app.controller`</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>Controller <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>BaseContextClass<span class="token punctuation">;</span>
+    <span class="token comment">// Base service to be extended by services in `app.service`</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>Service <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>BaseContextClass<span class="token punctuation">;</span>
+
+    <span class="token keyword">this</span><span class="token punctuation">.</span>lifecycle <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Lifecycle</span><span class="token punctuation">(</span><span class="token comment">/* ... */</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> Loader <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">EGG_LOADER</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>loader <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Loader</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+      baseDir<span class="token operator">:</span> options<span class="token punctuation">.</span>baseDir<span class="token punctuation">,</span>
+      app<span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">,</span>
+      plugins<span class="token operator">:</span> options<span class="token punctuation">.</span>plugins<span class="token punctuation">,</span>
+      logger<span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>console<span class="token punctuation">,</span>
+      serverScope<span class="token operator">:</span> options<span class="token punctuation">.</span>serverScope<span class="token punctuation">,</span>
+      env<span class="token operator">:</span> options<span class="token punctuation">.</span>env<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">get</span> <span class="token punctuation">[</span><span class="token constant">EGG_LOADER</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'egg-core/lib/loader/egg_loader.js'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>接着是 EggApplication，这里会调用刚才创建的加载器上 <code>loadConfig()</code> 方法，然后再次设置了 Controller 和 Service 属性。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg/lib/egg.js</span>
+<span class="token keyword">class</span> <span class="token class-name">EggApplication</span> <span class="token keyword">extends</span> <span class="token class-name">EggCore</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">options <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">super</span><span class="token punctuation">(</span>options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>loader<span class="token punctuation">.</span><span class="token function">loadConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// EggBaseContextClass 继承了上面见到的 BaseContextClass，只是额外设置了 logger 日志功能</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>Controller <span class="token operator">=</span> EggBaseContextClass<span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>Service <span class="token operator">=</span> EggBaseContextClass<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>最后回到 Application 的初始化，调用了加载器的 <code>load()</code> 方法。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg/lib/application.js</span>
+<span class="token keyword">const</span> <span class="token constant">EGG_LOADER</span> <span class="token operator">=</span> Symbol<span class="token punctuation">.</span><span class="token function">for</span><span class="token punctuation">(</span><span class="token string">'egg#loader'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> AppWorkerLoader <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'egg/lib/loader/app_worker_loader.js'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Application</span> <span class="token keyword">extends</span> <span class="token class-name">EggApplication</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">options <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">super</span><span class="token punctuation">(</span>options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>loader<span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 覆盖了最初在 egg-core 中设置的 Loader，也就是说上面调用的 loadConfig() 方法是 AppWorkerLoader 上的</span>
+  <span class="token keyword">get</span> <span class="token punctuation">[</span><span class="token constant">EGG_LOADER</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> AppWorkerLoader<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>事实上，将我们创建的控制器和服务绑定到我们应用程序上的关键就在于这里的 AppWorkerLoader。</p> <h3 id="loader"><a href="#loader" class="header-anchor">#</a> Loader</h3> <p>AppWorkerLoader 继承自 EggLoader，主要是重写了 <code>loadConfig()</code> 方法，并添加了上面提到的 <code>load()</code> 方法。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg/lib/loader/app_worker_loader.js</span>
+<span class="token keyword">class</span> <span class="token class-name">AppWorkerLoader</span> <span class="token keyword">extends</span> <span class="token class-name">EggLoader</span> <span class="token punctuation">{</span>
+  <span class="token comment">// 先加载插件然后加载配置</span>
+  <span class="token function">loadConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadPlugin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">loadConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">load</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>Egg 在 Koa 的基础上进行进一步增强最重要的就是基于一定的约定，根据功能差异将代码放到不同的目录下管理，EggLoader 实现了这套约定，并抽象了很多底层 API 可以进一步扩展。</p> <p>作为一个基类，EggLoader 根据文件加载的规则提供了一些内置的方法，如 <code>getEggPaths()</code> 可以用来获取框架目录：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/egg_loader.js</span>
+<span class="token keyword">class</span> <span class="token class-name">EggLoader</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">options</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>options <span class="token operator">=</span> options<span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>app <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">.</span>app<span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>eggPaths <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getEggPaths</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">getEggPaths</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> EggCore <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'../egg'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> eggPaths <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">let</span> proto <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>app<span class="token punctuation">;</span>
+
+    <span class="token comment">// Loop for the prototype chain</span>
+    <span class="token keyword">while</span> <span class="token punctuation">(</span>proto<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      proto <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">getPrototypeOf</span><span class="token punctuation">(</span>proto<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>proto <span class="token operator">===</span> <span class="token class-name">Object</span><span class="token punctuation">.</span>prototype <span class="token operator">||</span> proto <span class="token operator">===</span> <span class="token class-name">EggCore</span><span class="token punctuation">.</span>prototype<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">break</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+
+      <span class="token keyword">const</span> eggPath <span class="token operator">=</span> proto<span class="token punctuation">[</span>Symbol<span class="token punctuation">.</span><span class="token function">for</span><span class="token punctuation">(</span><span class="token string">'egg#eggPath'</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+      <span class="token keyword">const</span> realpath <span class="token operator">=</span> fs<span class="token punctuation">.</span><span class="token function">realpathSync</span><span class="token punctuation">(</span>eggPath<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>eggPaths<span class="token punctuation">.</span><span class="token function">includes</span><span class="token punctuation">(</span>realpath<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        eggPaths<span class="token punctuation">.</span><span class="token function">unshift</span><span class="token punctuation">(</span>realpath<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> eggPaths<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>EggLoader 本身并不会去执行自己暴露的一些方法，而是由继承类调用。如上，当上面的 <code>loadConfig()</code> 方法执行时会调用实例上的 <code>loadPlugin()</code> 方法加载插件。</p> <p>加载插件时找到应用和框架，加载 <code>config/plugin.js</code> 等文件，最后将所有合法插件配置对象赋值给加载器实例的 <code>plugins</code> 属性。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/mixin/plugin.js</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function">loadPlugin</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// loader plugins from application</span>
+    <span class="token keyword">const</span> appPlugins <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">readPluginConfigs</span><span class="token punctuation">(</span>
+      path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">.</span>baseDir<span class="token punctuation">,</span> <span class="token string">'config/plugin.default'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// loader plugins from framework</span>
+    <span class="token keyword">const</span> eggPluginConfigPaths <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>eggPaths<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">eggPath</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+      path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>eggPath<span class="token punctuation">,</span> <span class="token string">'config/plugin.default'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> eggPlugins <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">readPluginConfigs</span><span class="token punctuation">(</span>eggPluginConfigPaths<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// loader plugins from process.env.EGG_PLUGINS</span>
+    <span class="token keyword">let</span> customPlugins <span class="token operator">=</span> <span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>process<span class="token punctuation">.</span>env<span class="token punctuation">.</span><span class="token constant">EGG_PLUGINS</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// loader plugins from options.plugins</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">.</span>plugins<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      customPlugins <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> customPlugins<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">.</span>plugins<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">this</span><span class="token punctuation">.</span>plugins <span class="token operator">=</span> enablePlugins<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">/*
+   * 从多个目录中读取 plugin.js
+   */</span>
+  <span class="token function">readPluginConfigs</span><span class="token punctuation">(</span><span class="token parameter">configPaths</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> plugins <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// Get all plugin configurations</span>
+    <span class="token comment">// plugin.default.js</span>
+    <span class="token comment">// plugin.${scope}.js</span>
+    <span class="token comment">// plugin.${env}.js</span>
+    <span class="token comment">// plugin.${scope}_${env}.js</span>
+
+    <span class="token keyword">return</span> plugins<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>接着调用父类上的 <code>loadConfig()</code> 方法，也就是 EggCore 加载器上的 <code>loadConfig()</code> 方法加载配置：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/mixin/config.js</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function">loadConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> target <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token comment">// Load Application config first</span>
+    <span class="token keyword">const</span> appConfig <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">_preloadAppConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//   plugin config.default</span>
+    <span class="token comment">//     framework config.default</span>
+    <span class="token comment">//       app config.default</span>
+    <span class="token comment">//         plugin config.{env}</span>
+    <span class="token comment">//           framework config.{env}</span>
+    <span class="token comment">//             app config.{env}</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> filename <span class="token keyword">of</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getTypeFiles</span><span class="token punctuation">(</span><span class="token string">'config'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> unit <span class="token keyword">of</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getLoadUnits</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// load env from process.env.EGG_APP_CONFIG</span>
+    <span class="token keyword">const</span> envConfig <span class="token operator">=</span> <span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>process<span class="token punctuation">.</span>env<span class="token punctuation">.</span><span class="token constant">EGG_APP_CONFIG</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 以上加载的配置都会被扩展到 target</span>
+    <span class="token comment">// 您可以在 app.js 中操纵 app.config.coremidualware 和 app.config.appMiddleware 的顺序</span>
+    target<span class="token punctuation">.</span>coreMiddleware <span class="token operator">=</span> target<span class="token punctuation">.</span>coreMiddlewares <span class="token operator">=</span>
+      target<span class="token punctuation">.</span>coreMiddleware <span class="token operator">||</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    target<span class="token punctuation">.</span>appMiddleware <span class="token operator">=</span> target<span class="token punctuation">.</span>appMiddlewares <span class="token operator">=</span> target<span class="token punctuation">.</span>middleware <span class="token operator">||</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">this</span><span class="token punctuation">.</span>config <span class="token operator">=</span> target<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token function">getLoadUnits</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> dirs <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>dirs <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 获取加载单元的路径集合</span>
+    <span class="token comment">// 顺序从插件到框架，最后到应用程序</span>
+    <span class="token comment">// dirs.push({ path: xxx, type: xxx})</span>
+
+    <span class="token keyword">return</span> dirs<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>可见，配置的加载会根据一定的顺序加载各加载单元的配置：</p> <div class="language-bash extra-class"><pre class="language-bash"><code>-<span class="token operator">&gt;</span> 插件 config.default.js
+-<span class="token operator">&gt;</span> 框架 config.default.js
+-<span class="token operator">&gt;</span> 应用 config.default.js
+-<span class="token operator">&gt;</span> 插件 config.prod.js
+-<span class="token operator">&gt;</span> 框架 config.prod.js
+-<span class="token operator">&gt;</span> 应用 config.prod.js
+</code></pre></div><p>后加载的会覆盖前面的同名配置，最后将合并后的结果赋值给加载器实例的 <code>config</code> 属性。</p> <h3 id="loader-load"><a href="#loader-load" class="header-anchor">#</a> Loader.load()</h3> <p>当上面的 <code>loadConfig()</code> 方法结束后，接下来并会开始执行 <code>load()</code> 方法：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">class</span> <span class="token class-name">AppWorkerLoader</span> <span class="token keyword">extends</span> <span class="token class-name">EggLoader</span> <span class="token punctuation">{</span>
+  <span class="token function">load</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 加载扩展: app &gt; plugin &gt; core</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadApplicationExtend</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadRequestExtend</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadResponseExtend</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadContextExtend</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadHelperExtend</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadCustomLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// app &gt; plugin</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadCustomApp</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// app &gt; plugin</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadService</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 加载服务</span>
+    <span class="token comment">// app &gt; plugin &gt; core</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadMiddleware</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 加载中间件</span>
+    <span class="token comment">// app</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadController</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 加载控制器</span>
+    <span class="token comment">// app</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadRouter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Dependent on controllers</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>其中加载扩展 Application、Context、Request、Response、Helper 等对象的文件时，主要都是用到了 <code>loadExtend()</code> 方法。</p> <h3 id="loader-loadextend"><a href="#loader-loadextend" class="header-anchor">#</a> Loader.loadExtend()</h3> <p><code>loadExtend()</code> 方法主要通过操作存取描述符来实现（遍历对象上的属性获取对应的属性描述符，然后通过 <code>Object.defineProperty()</code> 定义到指定扩展对象的原型）。</p> <p>过程中，首先会查找可能存在的所有扩展文件：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/mixin/extend.js</span>
+<span class="token comment">// eg: loadExtend('application', this.app)</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function">loadExtend</span><span class="token punctuation">(</span><span class="token parameter">name<span class="token punctuation">,</span> proto</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// All extend files</span>
+    <span class="token keyword">const</span> filepaths <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getExtendFilePaths</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> l <span class="token operator">=</span> filepaths<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i <span class="token operator">&lt;</span> l<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> filepath <span class="token operator">=</span> filepaths<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+      filepaths<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>filepath <span class="token operator">+</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">.</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token keyword">this</span><span class="token punctuation">.</span>serverEnv<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token function">getExtendFilePaths</span><span class="token punctuation">(</span><span class="token parameter">name</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getLoadUnits</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">unit</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+      path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>unit<span class="token punctuation">.</span>path<span class="token punctuation">,</span> <span class="token string">'app/extend'</span><span class="token punctuation">,</span> name<span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>然后，遍历这些文件中暴露出来的对象的属性，并获取其属性描述符，如果该属性描述符已经存在将要扩展的对象或者 Koa 暴露出来的对象上，那么会尝试用已有的存取描述符顶替缺失的。</p> <p>最后，会使用得到的属性描述符在目标对象上扩展新的属性。</p> <div class="language-js extra-class"><pre class="language-js"><code>module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function">loadExtend</span><span class="token punctuation">(</span><span class="token parameter">name<span class="token punctuation">,</span> proto</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> filepath <span class="token keyword">of</span> filepaths<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> ext <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">requireFile</span><span class="token punctuation">(</span>filepath<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">const</span> properties <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">getOwnPropertyNames</span><span class="token punctuation">(</span>ext<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">concat</span><span class="token punctuation">(</span>
+        Object<span class="token punctuation">.</span><span class="token function">getOwnPropertySymbols</span><span class="token punctuation">(</span>ext<span class="token punctuation">)</span>
+      <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> property <span class="token keyword">of</span> properties<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">const</span> descriptor <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">getOwnPropertyDescriptor</span><span class="token punctuation">(</span>ext<span class="token punctuation">,</span> property<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// ...</span>
+        Object<span class="token punctuation">.</span><span class="token function">defineProperty</span><span class="token punctuation">(</span>proto<span class="token punctuation">,</span> property<span class="token punctuation">,</span> descriptor<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>所以，如果我们需要扩展 Application 对象，只需要调用 <code>loadExtend()</code> 方法就可以了：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">class</span> <span class="token class-name">AppWorkerLoader</span> <span class="token keyword">extends</span> <span class="token class-name">EggLoader</span> <span class="token punctuation">{</span>
+  <span class="token function">loadApplicationExtend</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadExtend</span><span class="token punctuation">(</span><span class="token string">'application'</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>app<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>如此一来，也就理清了为什么我们在 <code>app/extend</code> 目录下创建的文件暴露的对象最终会扩展到对于的对象。</p> <p>接下来，那便是 <code>loadCustomLoader()</code> 方法了。</p> <h3 id="loader-loadcustomloader"><a href="#loader-loadcustomloader" class="header-anchor">#</a> Loader.loadCustomLoader()</h3> <p>我们在书写配置时可以通过指定 <code>customLoader</code> 属性来指定加载指定目录下的文件扩展到指定的对象上：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: config/config.default.js</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  customLoader<span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 扩展属性名</span>
+    adapter<span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 相对于 app.config.baseDir 指定扩展文件所在目录</span>
+      directory<span class="token operator">:</span> <span class="token string">'app/adapter'</span><span class="token punctuation">,</span>
+      <span class="token comment">// 指定扩展的目标</span>
+      inject<span class="token operator">:</span> <span class="token string">'app'</span><span class="token punctuation">,</span>
+      <span class="token comment">// 是否加载框架和插件的目录</span>
+      loadunit<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+      <span class="token comment">// 还可以定义其他 LoaderOptions</span>
+      <span class="token comment">// ...</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>这和下面的写法是一致的：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// app.js</span>
+module<span class="token punctuation">.</span><span class="token function-variable function">exports</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">app</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> directory <span class="token operator">=</span> path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>app<span class="token punctuation">.</span>config<span class="token punctuation">.</span>baseDir<span class="token punctuation">,</span> <span class="token string">'app/adapter'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  app<span class="token punctuation">.</span>loader<span class="token punctuation">.</span><span class="token function">loadToApp</span><span class="token punctuation">(</span>directory<span class="token punctuation">,</span> <span class="token string">'adapter'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>可见 <code>loadCustomLoader()</code> 它的底层主要是借助 <code>loadToApp()</code> 方法实现的，如果扩展 ctx 则是 <code>loadToContext()</code> 方法。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/mixin/custom_loader.js</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function">loadCustomLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> customLoader <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>config<span class="token punctuation">.</span>customLoader <span class="token operator">||</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> property <span class="token keyword">of</span> Object<span class="token punctuation">.</span><span class="token function">keys</span><span class="token punctuation">(</span>customLoader<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> loaderConfig <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> customLoader<span class="token punctuation">[</span>property<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">const</span> inject <span class="token operator">=</span> loaderConfig<span class="token punctuation">.</span>inject <span class="token operator">||</span> <span class="token string">'app'</span><span class="token punctuation">;</span>
+      <span class="token comment">// ...</span>
+
+      <span class="token keyword">switch</span> <span class="token punctuation">(</span>inject<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">case</span> <span class="token string">'ctx'</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadToContext</span><span class="token punctuation">(</span><span class="token comment">/* */</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token keyword">break</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">case</span> <span class="token string">'app'</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadToApp</span><span class="token punctuation">(</span><span class="token comment">/* */</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token keyword">break</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">default</span><span class="token operator">:</span>
+          <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">Error</span><span class="token punctuation">(</span><span class="token string">'inject only support app or ctx'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>事实上 <code>loadToApp()</code> 并没有做太多事情，只是简单的处理了配置项，核心都是通过初始化 FileLoader 类后，调用实例上的 <code>load()</code> 方法来完成的。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">class</span> <span class="token class-name">EggLoader</span> <span class="token punctuation">{</span>
+  <span class="token function">loadToApp</span><span class="token punctuation">(</span><span class="token parameter">directory<span class="token punctuation">,</span> property<span class="token punctuation">,</span> opt</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> target <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>app<span class="token punctuation">[</span>property<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// ...</span>
+
+    <span class="token keyword">new</span> <span class="token class-name">FileLoader</span><span class="token punctuation">(</span>opt<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>在 <code>load()</code> 方法中会先调用 <code>parse()</code> 方法解析给定目录中的文件，然后返回一个项目列表，每项都包含以目录结构组成的属性数组和导出的结果。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/file_loader.js</span>
+<span class="token keyword">class</span> <span class="token class-name">FileLoader</span> <span class="token punctuation">{</span>
+  <span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> directories <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">.</span>directory<span class="token punctuation">;</span>
+    <span class="token keyword">const</span> filter <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">.</span>filter<span class="token punctuation">;</span>
+    <span class="token keyword">const</span> items <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">let</span> files <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">.</span>match<span class="token punctuation">;</span>
+    <span class="token keyword">let</span> ignore <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">.</span>ignore<span class="token punctuation">;</span>
+
+    ignore <span class="token operator">=</span> ignore<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">f</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token operator">!</span><span class="token operator">!</span>f<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">f</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token string">'!'</span> <span class="token operator">+</span> f<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    files <span class="token operator">=</span> files<span class="token punctuation">.</span><span class="token function">concat</span><span class="token punctuation">(</span>ignore<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> directory <span class="token keyword">of</span> directories<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> filepaths <span class="token operator">=</span> globby<span class="token punctuation">.</span><span class="token function">sync</span><span class="token punctuation">(</span>files<span class="token punctuation">,</span> <span class="token punctuation">{</span> cwd<span class="token operator">:</span> directory <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> filepath <span class="token keyword">of</span> filepaths<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">const</span> fullpath <span class="token operator">=</span> path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>directory<span class="token punctuation">,</span> filepath<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// get properties</span>
+        <span class="token comment">// app/service/foo/bar.js =&gt; [ 'foo', 'bar' ]</span>
+        <span class="token keyword">const</span> properties <span class="token operator">=</span> <span class="token function">getProperties</span><span class="token punctuation">(</span>filepath<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// app/service/foo/bar.js =&gt; service.foo.bar</span>
+        <span class="token keyword">const</span> pathName <span class="token operator">=</span>
+          directory<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">[/\\]</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">'.'</span> <span class="token operator">+</span> properties<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span><span class="token string">'.'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// get exports from the file</span>
+        <span class="token comment">// 如果传递的配置中存在 initializer，那么会先调用 initializer 对暴露的结果进行处理</span>
+        <span class="token keyword">const</span> exports <span class="token operator">=</span> <span class="token function">getExports</span><span class="token punctuation">(</span>fullpath<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">,</span> pathName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// ignore exports when it's null or false returned by filter function</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>exports <span class="token operator">==</span> <span class="token keyword">null</span> <span class="token operator">||</span> <span class="token punctuation">(</span>filter <span class="token operator">&amp;&amp;</span> <span class="token function">filter</span><span class="token punctuation">(</span>exports<span class="token punctuation">)</span> <span class="token operator">===</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">continue</span><span class="token punctuation">;</span>
+        <span class="token comment">// set properties of class</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>is<span class="token punctuation">.</span><span class="token function">class</span><span class="token punctuation">(</span>exports<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          exports<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>pathName <span class="token operator">=</span> pathName<span class="token punctuation">;</span>
+          exports<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>fullPath <span class="token operator">=</span> fullpath<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        items<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token punctuation">{</span> fullpath<span class="token punctuation">,</span> properties<span class="token punctuation">,</span> exports <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> items<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>接着会把每项附加到目标对象上，附加时会将目录层叠结构映射为嵌套的属性：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">class</span> <span class="token class-name">FileLoader</span> <span class="token punctuation">{</span>
+  <span class="token function">load</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> items <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> target <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">.</span>target<span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> item <span class="token keyword">of</span> items<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// item { properties: [ 'a', 'b', 'c'], exports }</span>
+      <span class="token comment">// =&gt; target.a.b.c = exports</span>
+      item<span class="token punctuation">.</span>properties<span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">target<span class="token punctuation">,</span> property<span class="token punctuation">,</span> index</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> obj<span class="token punctuation">;</span>
+        <span class="token keyword">const</span> properties <span class="token operator">=</span> item<span class="token punctuation">.</span>properties<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> index <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span><span class="token string">'.'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>index <span class="token operator">===</span> item<span class="token punctuation">.</span>properties<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          obj <span class="token operator">=</span> item<span class="token punctuation">.</span>exports<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+          obj <span class="token operator">=</span> target<span class="token punctuation">[</span>property<span class="token punctuation">]</span> <span class="token operator">||</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        target<span class="token punctuation">[</span>property<span class="token punctuation">]</span> <span class="token operator">=</span> obj<span class="token punctuation">;</span>
+        <span class="token keyword">return</span> obj<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span> target<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> target<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>也就是说，在 FileLoader 处理过之后，对应目录下个文件暴露的内容都已经按照层级结构保存到指定的目标对象上了。</p> <p>类似的 <code>loadToContext()</code> 最后也会会用 FileLoader，不过并不是直接调用的，调用的是继承了 FileLoader 的 ContextLoader 处理：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">class</span> <span class="token class-name">EggLoader</span> <span class="token punctuation">{</span>
+  <span class="token function">loadToContext</span><span class="token punctuation">(</span><span class="token parameter">directory<span class="token punctuation">,</span> property<span class="token punctuation">,</span> opt</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+
+    <span class="token keyword">new</span> <span class="token class-name">ContextLoader</span><span class="token punctuation">(</span>opt<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>它从各个目录读取来的结果并不像之前那样直接绑定在 Context 上，而是通过 <code>Object.defineProperty()</code> 方法将指定的属性定义到 Context 上面：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/context_loader.js</span>
+<span class="token keyword">const</span> <span class="token constant">CLASSLOADER</span> <span class="token operator">=</span> <span class="token function">Symbol</span><span class="token punctuation">(</span><span class="token string">'classLoader'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">ContextLoader</span> <span class="token keyword">extends</span> <span class="token class-name">FileLoader</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">options</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+    <span class="token keyword">super</span><span class="token punctuation">(</span>options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// define ctx.service</span>
+    Object<span class="token punctuation">.</span><span class="token function">defineProperty</span><span class="token punctuation">(</span>app<span class="token punctuation">.</span>context<span class="token punctuation">,</span> property<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+      <span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">const</span> classLoader <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">CLASSLOADER</span><span class="token punctuation">]</span>
+          <span class="token operator">?</span> <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">CLASSLOADER</span><span class="token punctuation">]</span>
+          <span class="token operator">:</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">CLASSLOADER</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Map</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">let</span> instance <span class="token operator">=</span> classLoader<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>property<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>instance<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          instance <span class="token operator">=</span> <span class="token function">getInstance</span><span class="token punctuation">(</span>target<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 如果是 Class 将会返回其实例</span>
+          classLoader<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>property<span class="token punctuation">,</span> instance<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> instance<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>这里也说明了为什么 Service 是懒的，因为只有我们在读取对应的 Service 才会在 <code>getInstance()</code> 方法中进行实例化：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">function</span> <span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token parameter">values<span class="token punctuation">,</span> ctx</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> Class <span class="token operator">=</span> values<span class="token punctuation">[</span><span class="token constant">EXPORTS</span><span class="token punctuation">]</span> <span class="token operator">?</span> values <span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+  <span class="token keyword">let</span> instance<span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>Class<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+    instance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">{</span> ctx<span class="token punctuation">,</span> properties<span class="token operator">:</span> values <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> instance<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>而且，之所以能够按照目录嵌套结构读取我们创建的 Service 也是在该方法中实现的，当它遇到是没有任何导出的目录时就会交给 ClassLoader 去处理。</p> <p>在 ClassLoader 中，它会将下层的属性定义到实例上面，在 <code>getter()</code> 方法中的处理方式则和 ContextLoader 基本一致，其中也会调用 <code>getInstance()</code> 方法来获取实例。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">class</span> <span class="token class-name">ClassLoader</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">options</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> properties <span class="token operator">=</span> options<span class="token punctuation">.</span>properties<span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>_cache <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Map</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>_ctx <span class="token operator">=</span> options<span class="token punctuation">.</span>ctx<span class="token punctuation">;</span>
+
+    <span class="token comment">// 遍历下层属性添加到实例上</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> property <span class="token keyword">in</span> properties<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">defineProperty</span><span class="token punctuation">(</span>property<span class="token punctuation">,</span> properties<span class="token punctuation">[</span>property<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">defineProperty</span><span class="token punctuation">(</span><span class="token parameter">property<span class="token punctuation">,</span> values</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    Object<span class="token punctuation">.</span><span class="token function">defineProperty</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> property<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+      <span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> instance <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>_cache<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>property<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>instance<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          instance <span class="token operator">=</span> <span class="token function">getInstance</span><span class="token punctuation">(</span>values<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>_ctx<span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token keyword">this</span><span class="token punctuation">.</span>_cache<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>property<span class="token punctuation">,</span> instance<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> instance<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>这样就形成了递归，我们就可以按照目录结构来读取创建的 Service 了。事实上，我们平时访问的 Service 并不是在这里开始加载的，具体如何我们在后面再了解。</p> <h3 id="loader-loadcustomapp"><a href="#loader-loadcustomapp" class="header-anchor">#</a> Loader.loadCustomApp()</h3> <p>在 <code>loadCustomApp()</code> 方法中主要是加载各个单元中的申明的钩子，并将其添加到之前创建的用来处理生命周期的 <code>lifecycle</code> 中，然后调用它的 <code>init()</code> 方法对注册的类进行实例化。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/mixin/custom.js</span>
+<span class="token keyword">const</span> <span class="token constant">LOAD_BOOT_HOOK</span> <span class="token operator">=</span> <span class="token function">Symbol</span><span class="token punctuation">(</span><span class="token string">'Loader#loadBootHook'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function">loadCustomApp</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">LOAD_BOOT_HOOK</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">'app'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>lifecycle<span class="token punctuation">.</span><span class="token function">triggerConfigWillLoad</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token punctuation">[</span><span class="token constant">LOAD_BOOT_HOOK</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token parameter">fileName</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> unit <span class="token keyword">of</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getLoadUnits</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> bootFilePath <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">resolveModule</span><span class="token punctuation">(</span>path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>unit<span class="token punctuation">.</span>path<span class="token punctuation">,</span> fileName<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">const</span> bootHook <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">requireFile</span><span class="token punctuation">(</span>bootFilePath<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>is<span class="token punctuation">.</span><span class="token function">class</span><span class="token punctuation">(</span>bootHook<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        bootHook<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>fullPath <span class="token operator">=</span> bootFilePath<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>lifecycle<span class="token punctuation">.</span><span class="token function">addBootHook</span><span class="token punctuation">(</span>bootHook<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token comment">// ...</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">this</span><span class="token punctuation">.</span>lifecycle<span class="token punctuation">.</span><span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>在 Lifecycle 中的处理也比较清晰，主要是存储相关的相关的钩子，然后在相应的方法调用时再执行钩子：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/lifecycle.js</span>
+<span class="token keyword">const</span> <span class="token constant">BOOT_HOOKS</span> <span class="token operator">=</span> <span class="token function">Symbol</span><span class="token punctuation">(</span><span class="token string">'Lifecycle#bootHooks'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Lifecycle</span> <span class="token keyword">extends</span> <span class="token class-name">EventEmitter</span> <span class="token punctuation">{</span>
+  <span class="token function">addBootHook</span><span class="token punctuation">(</span><span class="token parameter">hook</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">BOOT_HOOKS</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>hook<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">INIT</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">BOOTS</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">BOOT_HOOKS</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">t</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token keyword">new</span> <span class="token class-name">t</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>app<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">triggerConfigWillLoad</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> boot <span class="token keyword">of</span> <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">BOOTS</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>boot<span class="token punctuation">.</span>configWillLoad<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        boot<span class="token punctuation">.</span><span class="token function">configWillLoad</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// ...</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>因此，如果我们需要在框架的生命周期中做一些事情，只需要使用类的方式定义 <code>app.js</code> 和 <code>agent.js</code> 之后导出就可以了。</p> <h3 id="loader-loadservice-loader-loadmiddleware"><a href="#loader-loadservice-loader-loadmiddleware" class="header-anchor">#</a> Loader.loadService() &amp; Loader.loadMiddleware()</h3> <p>接下来真正 Service 的加载了，它会利用上面介绍的 <code>loadToContext()</code> 方法加载各个加载单元下 <code>app/service</code> 目录中的文件，并将结果保存在应用的 <code>serviceClasses</code> 属性下，等待调用 ctx API 时才实例化对象。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/mixin/service.js</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function">loadService</span><span class="token punctuation">(</span><span class="token parameter">opt</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadToContext</span><span class="token punctuation">(</span>servicePaths<span class="token punctuation">,</span> <span class="token string">'service'</span><span class="token punctuation">,</span> opt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>中间件的加载则是利用 <code>loadToApp()</code> 方法加载各个加载单元下的 <code>app/middleware</code> 目录中的文件，然后放在 <code>app.middlewares</code>。</p> <p>我们书写的中间件总是导出了一个函数，以便接收到用户的参数。所以在这里还会遍历中间件将之前读取到的对应配置选项和当前应用传递给函数得到真正的中间件。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/mixin/middleware.js</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function">loadMiddleware</span><span class="token punctuation">(</span><span class="token parameter">opt</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadToApp</span><span class="token punctuation">(</span>opt<span class="token punctuation">.</span>directory<span class="token punctuation">,</span> <span class="token string">'middlewares'</span><span class="token punctuation">,</span> opt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> name <span class="token keyword">in</span> app<span class="token punctuation">.</span>middlewares<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 通过将每一项 Object.defineProperty() 定义到 app.middleware</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// use middleware ordered by app.config.coreMiddleware and app.config.appMiddleware</span>
+    <span class="token keyword">const</span> middlewareNames <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>config<span class="token punctuation">.</span>coreMiddleware<span class="token punctuation">.</span><span class="token function">concat</span><span class="token punctuation">(</span>
+      <span class="token keyword">this</span><span class="token punctuation">.</span>config<span class="token punctuation">.</span>appMiddleware
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> name <span class="token keyword">of</span> middlewareNames<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> options <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>config<span class="token punctuation">[</span>name<span class="token punctuation">]</span> <span class="token operator">||</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+      <span class="token keyword">let</span> mw <span class="token operator">=</span> app<span class="token punctuation">.</span>middlewares<span class="token punctuation">[</span>name<span class="token punctuation">]</span><span class="token punctuation">;</span>
+      mw <span class="token operator">=</span> <span class="token function">mw</span><span class="token punctuation">(</span>options<span class="token punctuation">,</span> app<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token comment">// middlewares support options.enable, options.ignore and options.match</span>
+      mw <span class="token operator">=</span> <span class="token function">wrapMiddleware</span><span class="token punctuation">(</span>mw<span class="token punctuation">,</span> options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>mw<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        app<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span>mw<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>紧接着我们还有针对 <code>enable</code>、<code>match</code> 和 <code>ignore</code> 等选项进行处理，只有满足要求的中间件采用调用 <code>app.use()</code> 进行注册。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">function</span> <span class="token function">wrapMiddleware</span><span class="token punctuation">(</span><span class="token parameter">mw<span class="token punctuation">,</span> options</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// support options.enable</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>options<span class="token punctuation">.</span>enable <span class="token operator">===</span> <span class="token boolean">false</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// support generator function</span>
+  mw <span class="token operator">=</span> utils<span class="token punctuation">.</span><span class="token function">middleware</span><span class="token punctuation">(</span>mw<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// support options.match and options.ignore</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>options<span class="token punctuation">.</span>match <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>options<span class="token punctuation">.</span>ignore<span class="token punctuation">)</span> <span class="token keyword">return</span> mw<span class="token punctuation">;</span>
+  <span class="token keyword">const</span> match <span class="token operator">=</span> <span class="token function">pathMatching</span><span class="token punctuation">(</span>options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> <span class="token function-variable function">fn</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">ctx<span class="token punctuation">,</span> next</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">match</span><span class="token punctuation">(</span>ctx<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token function">mw</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> next<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  fn<span class="token punctuation">.</span>_name <span class="token operator">=</span> mw<span class="token punctuation">.</span>_name <span class="token operator">+</span> <span class="token string">'middlewareWrapper'</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> fn<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h3 id="loader-loadcontroller"><a href="#loader-loadcontroller" class="header-anchor">#</a> Loader.loadController()</h3> <p>控制器的加载也是通过 <code>loadToApp()</code> 方法来实现的，除了加载的目录为各个加载单元下的 <code>app/controller</code> 并存储在 <code>app.controller</code> 外，还在调用 <code>loadToApp()</code> 方法的选项中添加了一个 <code>initializer()</code> 方法对控制器进行预处理。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/mixin/controller.js</span>
+<span class="token keyword">const</span> opt <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function-variable function">initializer</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">obj<span class="token punctuation">,</span> opt</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 如果是一个普通函数就传递 app 执行函数取到真正的控制器</span>
+    <span class="token comment">// eg: module.exports = app =&gt; { return class HomeController extends app.Controller {}; }</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>
+      is<span class="token punctuation">.</span><span class="token function">function</span><span class="token punctuation">(</span><span class="token parameter">obj</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span>
+      <span class="token operator">!</span>is<span class="token punctuation">.</span><span class="token function">generatorFunction</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span>
+      <span class="token operator">!</span>is<span class="token punctuation">.</span><span class="token function">class</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span>
+      <span class="token operator">!</span>is<span class="token punctuation">.</span><span class="token function">asyncFunction</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span>
+    <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      obj <span class="token operator">=</span> <span class="token function">obj</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>app<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// Class 的方式是我们现在常见的书写方式</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>is<span class="token punctuation">.</span><span class="token function">class</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      obj<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>pathName <span class="token operator">=</span> opt<span class="token punctuation">.</span>pathName<span class="token punctuation">;</span>
+      obj<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>fullPath <span class="token operator">=</span> opt<span class="token punctuation">.</span>path<span class="token punctuation">;</span>
+      <span class="token keyword">return</span> <span class="token function">wrapClass</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>is<span class="token punctuation">.</span><span class="token function">object</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> <span class="token function">wrapObject</span><span class="token punctuation">(</span>obj<span class="token punctuation">,</span> opt<span class="token punctuation">.</span>path<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// support generatorFunction for forward compatbility</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>is<span class="token punctuation">.</span><span class="token function">generatorFunction</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span> <span class="token operator">||</span> is<span class="token punctuation">.</span><span class="token function">asyncFunction</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> <span class="token function">wrapObject</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token string">'module.exports'</span><span class="token operator">:</span> obj <span class="token punctuation">}</span><span class="token punctuation">,</span> opt<span class="token punctuation">.</span>path<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token string">'module.exports'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> obj<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>以我们最常书写的 Class 为例，它会创建一个新的对象，然后遍历控制器的原型链，除了 <code>constructor()</code> 和 <code>getter()</code> 外，会将其它方法都包装后记录在新的对象上，直到遍历到 Object 的原型，最后返回这个新的对象。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">function</span> <span class="token function">wrapClass</span><span class="token punctuation">(</span><span class="token parameter">Controller</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">let</span> proto <span class="token operator">=</span> <span class="token class-name">Controller</span><span class="token punctuation">.</span>prototype<span class="token punctuation">;</span>
+  <span class="token keyword">const</span> ret <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token comment">// tracing the prototype chain</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span>proto <span class="token operator">!==</span> <span class="token class-name">Object</span><span class="token punctuation">.</span>prototype<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> keys <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">getOwnPropertyNames</span><span class="token punctuation">(</span>proto<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> key <span class="token keyword">of</span> keys<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// getOwnPropertyNames will return constructor</span>
+      <span class="token comment">// that should be ignored</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>key <span class="token operator">===</span> <span class="token string">'constructor'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">continue</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token comment">// skip getter, setter &amp; non-function properties</span>
+      <span class="token keyword">const</span> d <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">getOwnPropertyDescriptor</span><span class="token punctuation">(</span>proto<span class="token punctuation">,</span> key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token comment">// prevent to override sub method</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>is<span class="token punctuation">.</span><span class="token function">function</span><span class="token punctuation">(</span><span class="token parameter">d<span class="token punctuation">.</span>value</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>ret<span class="token punctuation">.</span><span class="token function">hasOwnProperty</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        ret<span class="token punctuation">[</span>key<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">methodToMiddleware</span><span class="token punctuation">(</span>Controller<span class="token punctuation">,</span> key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    proto <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">getPrototypeOf</span><span class="token punctuation">(</span>proto<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> ret<span class="token punctuation">;</span>
+
+  <span class="token keyword">function</span> <span class="token function">methodToMiddleware</span><span class="token punctuation">(</span><span class="token parameter">Controller<span class="token punctuation">,</span> key</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">function</span> <span class="token function">classControllerMiddleware</span><span class="token punctuation">(</span><span class="token parameter"><span class="token operator">...</span>args</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> controller <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Controller</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">return</span> utils<span class="token punctuation">.</span><span class="token function">callFn</span><span class="token punctuation">(</span>controller<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">]</span><span class="token punctuation">,</span> controller<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>也就是说我们后续访问到 Controller 其实是一个对象，之后我们指定这个对象上的方法来处理响应的路由，这个函数在执行时会初始化最初暴露的控制器，然后调用对应的方法去处理本次请求。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> is <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'is-type-of'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/**
+ * @param {Egg.Application} app - egg application
+ */</span>
+module<span class="token punctuation">.</span><span class="token function-variable function">exports</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">app</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> router<span class="token punctuation">,</span> controller <span class="token punctuation">}</span> <span class="token operator">=</span> app<span class="token punctuation">;</span>
+
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>is<span class="token punctuation">.</span><span class="token function">class</span><span class="token punctuation">(</span>controller<span class="token punctuation">.</span>home<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// false</span>
+
+  router<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">,</span> controller<span class="token punctuation">.</span>home<span class="token punctuation">.</span>index<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><h3 id="loader-loadrouter"><a href="#loader-loadrouter" class="header-anchor">#</a> Loader.loadRouter()</h3> <p>最后路由的加载就更简单了，直接利用 <code>loader.loadFile()</code> 方法加载 <code>app/router.js</code>，并将当前应用作为参数调用暴露出来的函数。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// @file: egg-core/lib/loader/mixin/router.js</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function">loadRouter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 加载 router.js</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">loadFile</span><span class="token punctuation">(</span>path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>options<span class="token punctuation">.</span>baseDir<span class="token punctuation">,</span> <span class="token string">'app/router'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>值得一提的是，我们都没有添加过路由相关的东西，Router 是什么时候绑定在应用上的呢？事实上，在一开始 EggCore 初始化时应用就加载了 <a href="https://github.com/eggjs/egg-router" target="_blank" rel="noopener noreferrer">egg-router<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a> 来提供相关支持：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> Router <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'@eggjs/router'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>EggRouter<span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token constant">ROUTER</span> <span class="token operator">=</span> <span class="token function">Symbol</span><span class="token punctuation">(</span><span class="token string">'EggCore#router'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">EggCore</span> <span class="token keyword">extends</span> <span class="token class-name">KoaApplication</span> <span class="token punctuation">{</span>
+  <span class="token function">use</span><span class="token punctuation">(</span><span class="token parameter">fn</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>middleware<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>utils<span class="token punctuation">.</span><span class="token function">middleware</span><span class="token punctuation">(</span>fn<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">get</span> <span class="token function">router</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">ROUTER</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">ROUTER</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">const</span> router <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">[</span><span class="token constant">ROUTER</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Router</span><span class="token punctuation">(</span><span class="token punctuation">{</span> sensitive<span class="token operator">:</span> <span class="token boolean">true</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// register router middleware</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">beforeStart</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span>router<span class="token punctuation">.</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> router<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>egg-router 其实是 fork 自 <a href="https://github.com/ZijianHe/koa-router" target="_blank" rel="noopener noreferrer">koa-router<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a> 的，然后添加了一些额外的功能。</p> <h2 id="总结"><a href="#总结" class="header-anchor">#</a> 总结</h2> <p>回到我们最开始的问题，现在应该很清晰了。</p> <ul><li>项目中没有所谓的入口文件，服务是如何启动的？</li></ul> <p>CommonBin 在 Yargs 的基础上抽象封装的 Nodejs 命令行工具，而 EggBin 则基于 CommonBin 将指定目录下的命令自动挂载到实例对象下面，之后再通过命令调用对应的脚本进行处理。</p> <p>以运行 Debug 为例，EggBin 最终调用了 Egg 模块的 <code>startCluster()</code> 方法，而该方法实际上被定义在 EggCluster 模块，该模块专门用来为 Egg 提供集群管理。</p> <p>EggCluster 在运行时会自动创建一个 Agent 和多个 Worker，每个 Worker 都会创建一个应用用于处理用户请求，等到多个 App Worker 成功启动后，Master 并开始对外提供服务。</p> <ul><li>控制器和服务都在各自的目录下声明，最终是如何出现在 <code>app</code> 对象上的？</li></ul> <p>Egg 作为一个底层框架，其本身支持的特性较少，需要插件来提供更多的特性。在 Egg 中插件其实就是一个小型的应用，而在应用之上基于 Egg 又可以扩展出一个个框架，Egg 将应用、框架和插件都称为加载单元（loadUnit）。</p> <p>在初始化过程中，当调用 <code>loadConfig()</code> 方法时，Egg 会遍历所有的 <code>loadUnit</code> 加载文件并扩展到指定的目标：</p> <table><thead><tr><th style="text-align:left;">文件</th> <th style="text-align:left;">应用</th> <th style="text-align:left;">框架</th> <th style="text-align:left;">插件</th></tr></thead> <tbody><tr><td style="text-align:left;">package.json</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">config/plugin.{env}.js</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;"></td></tr> <tr><td style="text-align:left;">config/config.{env}.js</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">app/extend/application.js</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">app/extend/request.js</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">app/extend/response.js</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">app/extend/context.js</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">app/extend/helper.js</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">agent.js</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">app.js</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">app/service</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">app/middleware</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;">✔︎</td></tr> <tr><td style="text-align:left;">app/controller</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;"></td> <td style="text-align:left;"></td></tr> <tr><td style="text-align:left;">app/router.js</td> <td style="text-align:left;">✔︎</td> <td style="text-align:left;"></td> <td style="text-align:left;"></td></tr></tbody></table> <p>加载时会按照一定的优先级依次加载：</p> <ol><li>插件 =&gt; 框架 =&gt; 应用；</li> <li>插件之间的顺序由依赖关系决定，被依赖方先加载；</li> <li>框架按继承顺序加载，越底层越先加载。</li></ol> <h2 id="appendix"><a href="#appendix" class="header-anchor">#</a> Appendix</h2> <ul><li>Yargs 框架通过使用 Node.js 构建功能全面的命令行应用，它能轻松配置命令，解析多个参数，并设置快捷方式等，还能自动生成帮助菜单。</li></ul> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// test.js</span>
+<span class="token keyword">const</span> yargs <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'yargs'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> argv <span class="token operator">=</span> yargs
+  <span class="token punctuation">.</span><span class="token function">usage</span><span class="token punctuation">(</span><span class="token string">'Usage: --s &lt;filename&gt;'</span><span class="token punctuation">)</span> <span class="token comment">// 声明命令格式</span>
+  <span class="token punctuation">.</span><span class="token function">describe</span><span class="token punctuation">(</span><span class="token string">'t'</span><span class="token punctuation">,</span> <span class="token string">'类型'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">alias</span><span class="token punctuation">(</span><span class="token string">'t'</span><span class="token punctuation">,</span> <span class="token string">'type'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">demandOption</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'type'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'type is required'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">default</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'test'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">option</span><span class="token punctuation">(</span><span class="token string">'s'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    describe<span class="token operator">:</span> <span class="token string">'文件大小'</span><span class="token punctuation">,</span> <span class="token comment">// 选项的描述信息</span>
+    alias<span class="token operator">:</span> <span class="token string">'size'</span><span class="token punctuation">,</span> <span class="token comment">// 别名</span>
+    demandOption<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token comment">// 是否必需</span>
+    <span class="token keyword">default</span><span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token comment">// 默认值</span>
+    type<span class="token operator">:</span> <span class="token string">'number'</span><span class="token punctuation">,</span> <span class="token comment">// 类型</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">example</span><span class="token punctuation">(</span><span class="token string">'--s a.txt'</span><span class="token punctuation">,</span> <span class="token string">'设置源文件'</span><span class="token punctuation">)</span> <span class="token comment">// 使用示例</span>
+  <span class="token punctuation">.</span><span class="token function">help</span><span class="token punctuation">(</span><span class="token string">'help'</span><span class="token punctuation">)</span> <span class="token comment">// 显示帮助信息</span>
+  <span class="token punctuation">.</span><span class="token function">epilog</span><span class="token punctuation">(</span><span class="token string">'copyright'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>argv<span class="token punctuation">;</span> <span class="token comment">//  在帮助信息尾部显示</span>
+
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>argv<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// node test a b -t c --name d</span>
+</code></pre></div><ul><li>Cluster 可以在服务器上同时启动多个进程，每个进程里都跑的是同一份源代码，而且这些进程可以同时监听一个端口。</li></ul> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> cluster <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'cluster'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> http <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'http'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> numCPUs <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'os'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">cpus</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span>cluster<span class="token punctuation">.</span>isMaster<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Fork workers.</span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> numCPUs<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    cluster<span class="token punctuation">.</span><span class="token function">fork</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  cluster<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'exit'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">worker<span class="token punctuation">,</span> code<span class="token punctuation">,</span> signal</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'worker '</span> <span class="token operator">+</span> worker<span class="token punctuation">.</span>process<span class="token punctuation">.</span>pid <span class="token operator">+</span> <span class="token string">' died'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Workers can share any TCP connection</span>
+  <span class="token comment">// In this case it is an HTTP server</span>
+  http
+    <span class="token punctuation">.</span><span class="token function">createServer</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">req<span class="token punctuation">,</span> res</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      res<span class="token punctuation">.</span><span class="token function">writeHead</span><span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      res<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token string">'hello world\n'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token number">8000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="refs"><a href="#refs" class="header-anchor">#</a> Refs</h2> <ul><li><a href="https://juejin.cn/post/6844903716777099278" target="_blank" rel="noopener noreferrer">Egg.js 源码分析-项目启动<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li> <li><a href="https://segmentfault.com/a/1190000018139676" target="_blank" rel="noopener noreferrer">从 egg-bin 聊到 command line interface Tool<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li> <li><a href="https://www.cnblogs.com/bymax/p/5748662.html" target="_blank" rel="noopener noreferrer">从零开始打造个人专属命令行工具集——yargs 完全指南<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></div> <div class="page-edit"><div class="edit-link"><a href="https://github.com/kisstar/blog/edit/master/packages/docs/posts/posts/nodejs/2021-05-09-egg.md" target="_blank" rel="noopener noreferrer">在 GitHub 上编辑此页</a></div> <div class="last-updated"><span class="prefix">最近更新:</span> <span class="time">2021-06-12 00:02:01</span></div></div> <div class="divider horizontal"></div> <div class="page-nav"><div class="prev"><svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M62.56 511.904L485.952 88.256a48.64 48.64 0 0 1 68.736 68.736L199.616 512.064l356.8 356.8A48.64 48.64 0 0 1 487.68 937.6l-39.744-39.744 0.256-0.256L62.528 511.936z m388.8 0L874.752 88.256a48.64 48.64 0 0 1 68.736 68.736L588.416 512.064l356.8 356.8A48.64 48.64 0 0 1 876.48 937.6l-39.776-39.744 0.288-0.256-385.664-385.664z" fill="currentColor"></path></svg> <a href="/2019/12/16/promise/">
+  从零实现 Promise
+</a></div> <div class="next"><a href="/2020/02/05/vuex/">
+  Vuex 原理解析
+</a> <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M948.064 513.056L536.064 925.312a47.296 47.296 0 0 1-66.88-66.88l345.504-345.504L467.52 165.76a47.296 47.296 0 0 1 66.88-66.88l38.688 38.688-0.256 0.256 375.264 375.264m-378.336-0.032L157.76 925.312a47.296 47.296 0 0 1-66.88-66.88l345.472-345.504L89.184 165.76a47.296 47.296 0 0 1 66.88-66.88l38.688 38.688-0.256 0.256 375.264 375.264" fill="currentColor"></path></svg></div></div> <!----> <div class="over-tip">到底了，再怎么滑也没有了 ^_^</div></article></main> <footer class="footer"><div class="copyright-container"><p>
+      Theme developed by
+      <a href="https://github.com/kisstar/" target="_blank" rel="noopener noreferrer">
+  Kisstar
+</a>
+      &amp; Powered by
+      <a href="https://vuepress.vuejs.org/" target="_blank" rel="noopener noreferrer">
+  VuePress
+</a>
+      .
+    </p> <p>Copyright © 2020. All Rights Reserved.</p></div></footer></div></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.f760a5e0.js" defer></script><script src="/assets/js/4.3a48c712.js" defer></script><script src="/assets/js/12.bd0d5614.js" defer></script>
+  </body>
+</html>

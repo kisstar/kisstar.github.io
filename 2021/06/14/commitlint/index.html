@@ -8,7 +8,7 @@
     
     <meta name="description" content="">
     
-    <link rel="preload" href="/assets/css/0.styles.f97a10dc.css" as="style"><link rel="preload" href="/assets/js/app.f760a5e0.js" as="script"><link rel="preload" href="/assets/js/4.3a48c712.js" as="script"><link rel="preload" href="/assets/js/9.828c9a88.js" as="script"><link rel="prefetch" href="/assets/js/10.b1eecfee.js"><link rel="prefetch" href="/assets/js/11.af051a60.js"><link rel="prefetch" href="/assets/js/12.bd0d5614.js"><link rel="prefetch" href="/assets/js/13.6a4da3e4.js"><link rel="prefetch" href="/assets/js/14.cd5b350f.js"><link rel="prefetch" href="/assets/js/15.9d3464b7.js"><link rel="prefetch" href="/assets/js/3.80dd2c2e.js"><link rel="prefetch" href="/assets/js/5.7e1b4556.js"><link rel="prefetch" href="/assets/js/6.19264b32.js"><link rel="prefetch" href="/assets/js/7.5d663933.js"><link rel="prefetch" href="/assets/js/8.839140df.js"><link rel="prefetch" href="/assets/js/vuejs-paginate.dacd362e.js">
+    <link rel="preload" href="/assets/css/0.styles.f97a10dc.css" as="style"><link rel="preload" href="/assets/js/app.ffcbc8a2.js" as="script"><link rel="preload" href="/assets/js/4.ee91810f.js" as="script"><link rel="preload" href="/assets/js/9.16ebc7cc.js" as="script"><link rel="prefetch" href="/assets/js/10.4aeaa82a.js"><link rel="prefetch" href="/assets/js/11.77a5201c.js"><link rel="prefetch" href="/assets/js/12.cc794553.js"><link rel="prefetch" href="/assets/js/13.6a4da3e4.js"><link rel="prefetch" href="/assets/js/14.70473368.js"><link rel="prefetch" href="/assets/js/15.5fcfd48c.js"><link rel="prefetch" href="/assets/js/16.1575169a.js"><link rel="prefetch" href="/assets/js/3.be2ed30f.js"><link rel="prefetch" href="/assets/js/5.0584d058.js"><link rel="prefetch" href="/assets/js/6.40c25e23.js"><link rel="prefetch" href="/assets/js/7.2fa3d41f.js"><link rel="prefetch" href="/assets/js/8.690e96e5.js"><link rel="prefetch" href="/assets/js/vuejs-paginate.3a209bc1.js">
     <link rel="stylesheet" href="/assets/css/0.styles.f97a10dc.css">
   </head>
   <body>
@@ -39,7 +39,7 @@
 <span class="token function">yarn</span> husky <span class="token function">install</span>
 
 <span class="token comment"># Add hook</span>
-npx husky <span class="token function">add</span> .husky/commit-msg <span class="token string">'npx --no-install commitlint --edit &quot;<span class="token variable">$1</span>&quot;'</span>
+npx husky <span class="token function">add</span> .husky/commit-msg <span class="token string">'npx --no-install commitlint --edit &quot;$1&quot;'</span>
 </code></pre></div><p>现在，规范终于落地了。</p> <h2 id="adapter"><a href="#adapter" class="header-anchor">#</a> Adapter</h2> <p>刚开始使用的时候，我们对提交规范可能会比较陌生，不知道存在哪些选项，又或者需要怎样选择，因此交互式的提交方式是有必要的。</p> <p>官方提供了 <code>@commitlint/prompt-cli</code> 来帮助快速编写提交消息，并确保它们遵守在配置文件中配置的提交约定。</p> <p>由于其交互模式差强人意，人们使用更多的提交工具是 Commitizen，当你使用它进行提交时系统也将提示你需要填写的所有必需提交字段。</p> <div class="language-bash extra-class"><pre class="language-bash"><code><span class="token function">yarn</span> <span class="token function">add</span> -D commitizen
 </code></pre></div><p>它提供了一个 <code>git-cz</code> 命令，用于代替 <code>git commit</code> 进行提交：</p> <div class="language-json extra-class"><pre class="language-json"><code><span class="token punctuation">{</span>
   <span class="token property">&quot;scripts&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
@@ -161,7 +161,7 @@ module<span class="token punctuation">.</span>exports <span class="token operato
 <span class="token function">yarn</span> husky <span class="token function">install</span>
 
 <span class="token comment"># Add hook</span>
-npx husky <span class="token function">add</span> .husky/commit-msg <span class="token string">'npx --no-install commitlint --edit &quot;<span class="token variable">$1</span>&quot;'</span>
+npx husky <span class="token function">add</span> .husky/commit-msg <span class="token string">'npx --no-install commitlint --edit &quot;$1&quot;'</span>
 
 <span class="token function">yarn</span> <span class="token function">add</span> -D @commitlint/cz-commitlint commitizen
 </code></pre></div><p>然后，再添加上命令和交互式配置就可以了：</p> <div class="language-json extra-class"><pre class="language-json"><code><span class="token comment">// package.json</span>
@@ -188,6 +188,6 @@ npx husky <span class="token function">add</span> .husky/commit-msg <span class=
 </a>
       .
     </p> <p>Copyright © 2020. All Rights Reserved.</p></div></footer></div></div><div class="global-ui"></div></div>
-    <script src="/assets/js/app.f760a5e0.js" defer></script><script src="/assets/js/4.3a48c712.js" defer></script><script src="/assets/js/9.828c9a88.js" defer></script>
+    <script src="/assets/js/app.ffcbc8a2.js" defer></script><script src="/assets/js/4.ee91810f.js" defer></script><script src="/assets/js/9.16ebc7cc.js" defer></script>
   </body>
 </html>

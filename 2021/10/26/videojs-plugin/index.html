@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Videojs 插件 | Kisstar&#39;s 博客</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    
+    <meta name="description" content="">
+    
+    <link rel="preload" href="/assets/css/0.styles.2421aea0.css" as="style"><link rel="preload" href="/assets/js/app.477016c6.js" as="script"><link rel="preload" href="/assets/js/4.06d961f3.js" as="script"><link rel="preload" href="/assets/js/22.5a31903a.js" as="script"><link rel="prefetch" href="/assets/js/10.b65c2aac.js"><link rel="prefetch" href="/assets/js/11.8821bded.js"><link rel="prefetch" href="/assets/js/12.6591167c.js"><link rel="prefetch" href="/assets/js/13.fe50f07b.js"><link rel="prefetch" href="/assets/js/14.4d500b78.js"><link rel="prefetch" href="/assets/js/15.c2460055.js"><link rel="prefetch" href="/assets/js/16.ce188779.js"><link rel="prefetch" href="/assets/js/17.fbf9921e.js"><link rel="prefetch" href="/assets/js/18.d51211e8.js"><link rel="prefetch" href="/assets/js/19.62f33e0f.js"><link rel="prefetch" href="/assets/js/20.a8772976.js"><link rel="prefetch" href="/assets/js/21.5aa82d7b.js"><link rel="prefetch" href="/assets/js/23.845e532a.js"><link rel="prefetch" href="/assets/js/24.8621cb19.js"><link rel="prefetch" href="/assets/js/25.b17b1c02.js"><link rel="prefetch" href="/assets/js/26.19c13fb9.js"><link rel="prefetch" href="/assets/js/27.01a52207.js"><link rel="prefetch" href="/assets/js/3.a5912d42.js"><link rel="prefetch" href="/assets/js/5.00570d31.js"><link rel="prefetch" href="/assets/js/6.da5166d6.js"><link rel="prefetch" href="/assets/js/7.4df6ba74.js"><link rel="prefetch" href="/assets/js/8.920f8a40.js"><link rel="prefetch" href="/assets/js/9.a87bca15.js"><link rel="prefetch" href="/assets/js/vuejs-paginate.eda5f127.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.2421aea0.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container post"><div class="theme-extreme"><header class="navbar fixed"><a href="/" class="navbar-brand router-link-active"><img src="/assets/img/logo.46de8c82.png" alt="Kisstar's 博客" class="logo"> <span>Kisstar's 博客</span></a> <button type="button" class="navbar-toggler"><svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="36"><path d="M128 469.333333m40.533333 0l686.933334 0q40.533333 0 40.533333 40.533334l0 4.266666q0 40.533333-40.533333 40.533334l-686.933334 0q-40.533333 0-40.533333-40.533334l0-4.266666q0-40.533333 40.533333-40.533334Z" fill="#D0D0D0"></path> <path d="M128 682.666667m40.533333 0l686.933334 0q40.533333 0 40.533333 40.533333l0 4.266667q0 40.533333-40.533333 40.533333l-686.933334 0q-40.533333 0-40.533333-40.533333l0-4.266667q0-40.533333 40.533333-40.533333Z" fill="#D0D0D0"></path> <path d="M128 256m40.533333 0l686.933334 0q40.533333 0 40.533333 40.533333l0 4.266667q0 40.533333-40.533333 40.533333l-686.933334 0q-40.533333 0-40.533333-40.533333l0-4.266667q0-40.533333 40.533333-40.533333Z" fill="#D0D0D0"></path></svg></button> <div class="navbar-collapse"><ul class="navbar-nav"><li class="navbar-item"><a href="https://juejin.cn/user/870468942050759" target="_blank" rel="noopener noreferrer">
+  掘金
+</a></li><li class="navbar-item"><a href="https://segmentfault.com/u/dongwanhong/" target="_blank" rel="noopener noreferrer">
+  思否
+</a></li><li class="navbar-item"><a href="https://dongwanhong.gitee.io/notebook/" target="_blank" rel="noopener noreferrer">
+  笔记
+</a></li><li class="navbar-item"><a href="https://dongwanhong.gitee.io/source-code/" target="_blank" rel="noopener noreferrer">
+  案列
+</a></li><li class="navbar-item"><a href="https://github.com/kisstar" target="_blank" rel="noopener noreferrer">
+  GitHub
+</a></li></ul></div></header> <main class="theme-content"><article class="post-body"><div class="post-meta"><h1>Videojs 插件</h1> <div class="post-meta-author"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg> <span>Kisstar</span> <span> 在北京</span></div> <div class="post-meta-date"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle> <polyline points="12 6 12 12 16 14"></polyline></svg> <time pubdate datetime="2021-10-26T00:00:00.000Z">
+      2021-10-26
+    </time></div> <ul class="post-meta-tags"><li class="post-tag"><a href="/tag/Video"><span>Video</span></a></li><li class="post-tag"><a href="/tag/Video.js"><span>Video.js</span></a></li></ul></div> <div class="content__default"><img src="/images/video/videojs/videojs-plugin.png" alt="videojs-plugin"> <p>插件是一种遵循一定规范的应用程序接口编写出来的程序，它允许开发者根据自己的需要对框架的功能进行补充和延伸。</p> <p>Video.js 的一个巨大优势就是它的插件生态系统，在 Videojs 中插件主要分为基础插件和高级插件。</p> <h2 id="加载插件"><a href="#加载插件" class="header-anchor">#</a> 加载插件</h2> <p>在 Player 组件的构造函数中，会对配置中的插件进行加载：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">class</span> <span class="token class-name">Player</span> <span class="token keyword">extends</span> <span class="token class-name">Component</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">tag<span class="token punctuation">,</span> options<span class="token punctuation">,</span> ready</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>options<span class="token punctuation">.</span>plugins<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      Object<span class="token punctuation">.</span><span class="token function">keys</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>plugins<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">name</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">[</span>name<span class="token punctuation">]</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>plugins<span class="token punctuation">[</span>name<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>可见，插件会预先作为方法放置到播放器实例（实际上是原型）上，在运行时将会收到来自用户的配置参数。</p> <p>除了通过配置的方式告诉播放器加载插件外，同时也可以自主加载相应的插件，以名为 examplePlugin 的插件为例：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">var</span> player <span class="token operator">=</span> <span class="token function">videojs</span><span class="token punctuation">(</span><span class="token string">'example-player'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+player<span class="token punctuation">.</span><span class="token function">examplePlugin</span><span class="token punctuation">(</span><span class="token punctuation">{</span> customClass<span class="token operator">:</span> <span class="token string">'example-class'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><p>因为插件本质上就是一个函数，所以这样的加载方式也是可行的。</p> <h2 id="基础插件"><a href="#基础插件" class="header-anchor">#</a> 基础插件</h2> <p>基础插件其实就是一个纯 JavaScript 函数，它的执行上下文被绑定到了播放器实例上，所以我们借此对播放器进行操作：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">function</span> <span class="token function">examplePlugin</span><span class="token punctuation">(</span><span class="token parameter">options</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>options<span class="token punctuation">.</span>customClass<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">addClass</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>customClass<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'playing'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    videojs<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'playback began!'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>当然，为了让程序知道我们的插件，我们需要对创建的插件进行注册：</p> <div class="language-js extra-class"><pre class="language-js"><code>videojs<span class="token punctuation">.</span><span class="token function">registerPlugin</span><span class="token punctuation">(</span><span class="token string">'examplePlugin'</span><span class="token punctuation">,</span> examplePlugin<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 注册</span>
+</code></pre></div><p>插件名称的唯一规定是它不能与任何现有的插件或播放器方法冲突，因为会将插件写入到播放器的原型：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> <span class="token function-variable function">createBasicPlugin</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">name<span class="token punctuation">,</span> plugin</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token function-variable function">basicPluginWrapper</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 绑定了插件执行时的上下文</span>
+    <span class="token keyword">const</span> instance <span class="token operator">=</span> <span class="token function">plugin</span><span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> arguments<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> instance<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> basicPluginWrapper<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+videojs<span class="token punctuation">.</span>registerPlugin <span class="token operator">=</span> Plugin<span class="token punctuation">.</span>registerPlugin <span class="token operator">=</span> <span class="token function">registerPlugin</span><span class="token punctuation">(</span><span class="token parameter">name<span class="token punctuation">,</span> plugin</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>Plugin<span class="token punctuation">.</span><span class="token function">isBasic</span><span class="token punctuation">(</span>plugin<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token comment">// 判断是否继承了 Plugin 的实例</span>
+    <span class="token class-name">Player</span><span class="token punctuation">.</span>prototype<span class="token punctuation">[</span>name<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">createBasicPlugin</span><span class="token punctuation">(</span>name<span class="token punctuation">,</span> plugin<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 写入到播放器组件的原型</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> plugin<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>也就是说，加载插件时执行的实际上是 <code>basicPluginWrapper()</code> 函数，由于它被作为播放器的方法进行调用，所以它的执行上下文指向的是播放器。</p> <h2 id="高阶插件"><a href="#高阶插件" class="header-anchor">#</a> 高阶插件</h2> <p>注册一个高阶插件的方式和基础插件一致，只不过高价插件应该是一个继承了 Plugin 类的子类：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> Plugin <span class="token operator">=</span> videojs<span class="token punctuation">.</span><span class="token function">getPlugin</span><span class="token punctuation">(</span><span class="token string">'plugin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">ExamplePlugin</span> <span class="token keyword">extends</span> <span class="token class-name">Plugin</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">player<span class="token punctuation">,</span> options</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">super</span><span class="token punctuation">(</span>player<span class="token punctuation">,</span> options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>options<span class="token punctuation">.</span>customClass<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      player<span class="token punctuation">.</span><span class="token function">addClass</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>customClass<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    player<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'playing'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      videojs<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'playback began!'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+videojs<span class="token punctuation">.</span><span class="token function">registerPlugin</span><span class="token punctuation">(</span><span class="token string">'examplePlugin'</span><span class="token punctuation">,</span> ExamplePlugin<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 注册</span>
+</code></pre></div><p>内部注册时同样会对传递的插件进行包装，将播放器实例和其它配置项作为参数，并且仅会被实例化一次，以后会直接返回之前得到的实例：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> <span class="token function-variable function">createPluginFactory</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">name<span class="token punctuation">,</span> PluginSubClass</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token class-name">PluginSubClass</span><span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter"><span class="token operator">...</span>args</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> instance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PluginSubClass</span><span class="token punctuation">(</span><span class="token operator">...</span><span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">,</span> <span class="token operator">...</span>args<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 插件被返回当前实例的函数所取代</span>
+    <span class="token keyword">this</span><span class="token punctuation">[</span>name<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> instance<span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> instance<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+videojs<span class="token punctuation">.</span>registerPlugin <span class="token operator">=</span> Plugin<span class="token punctuation">.</span>registerPlugin <span class="token operator">=</span> <span class="token function">registerPlugin</span><span class="token punctuation">(</span><span class="token parameter">name<span class="token punctuation">,</span> plugin</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>Plugin<span class="token punctuation">.</span><span class="token function">isBasic</span><span class="token punctuation">(</span>plugin<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+    <span class="token class-name">Player</span><span class="token punctuation">.</span>prototype<span class="token punctuation">[</span>name<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">createPluginFactory</span><span class="token punctuation">(</span>name<span class="token punctuation">,</span> plugin<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> plugin<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>与基础插件不同的是高阶插件内部的 <code>this</code> 指向的其实是插件实例。另外，高阶插件第一次运行前是一个工厂函数，之后会被更换为一个返回插件实例的函数。</p> <h3 id="生命周期"><a href="#生命周期" class="header-anchor">#</a> 生命周期</h3> <p>和组件一样，每个高阶插件拥有一个生命周期，它们由工厂函数创建，同时也可以使用 <code>dispose()</code> 方法进行销毁：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// set up a example plugin instance</span>
+player<span class="token punctuation">.</span><span class="token function">examplePlugin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// dispose of it anytime thereafter</span>
+player<span class="token punctuation">.</span><span class="token function">examplePlugin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">dispose</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><p>当 <code>dispose()</code> 方法执行时具有以下几种效果：</p> <ul><li>在插件实例上触发“dispose”事件。</li> <li>清理插件实例上的所有事件侦听器，这有助于避免在清理对象后触发事件所导致的错误。</li> <li>删除插件状态和对播放器的引用以避免内存泄漏。</li> <li>将播放器的命名属性（例如 player.examplePlugin）恢复为原始工厂函数，以便重新设置插件。</li></ul> <p>此外，如果播放器被销毁，所有高级插件实例的释放也会被触发。</p> <p>有时，会出现一些代码需要在插件相应周期执行的案列，此时就可以通过注册生命周期函数来实现：</p> <ul><li><code>beforepluginsetup</code>：在任何插件初始化之前立即触发。</li> <li><code>beforepluginsetup:examplePlugin</code>：在初始化 examplePlugin 插件之前。</li> <li><code>pluginsetup</code>：任何插件初始化后触发。</li> <li><code>pluginsetup:examplePlugin</code>：在 examplePlugin 初始化后触发。</li></ul> <p>这些事件适用于基本插件和高级插件。它们在播放器上被触发，每个都包含一个额外事件数据的对象作为侦听器的第二个参数。</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> <span class="token function-variable function">triggerSetupEvent</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">player<span class="token punctuation">,</span> hash<span class="token punctuation">,</span> before</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> eventName <span class="token operator">=</span> <span class="token punctuation">(</span>before <span class="token operator">?</span> <span class="token string">'before'</span> <span class="token operator">:</span> <span class="token string">''</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">'pluginsetup'</span><span class="token punctuation">;</span>
+
+  player<span class="token punctuation">.</span><span class="token function">trigger</span><span class="token punctuation">(</span>eventName<span class="token punctuation">,</span> hash<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  player<span class="token punctuation">.</span><span class="token function">trigger</span><span class="token punctuation">(</span>eventName <span class="token operator">+</span> <span class="token string">':'</span> <span class="token operator">+</span> hash<span class="token punctuation">.</span>name<span class="token punctuation">,</span> hash<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><h3 id="其它"><a href="#其它" class="header-anchor">#</a> 其它</h3> <p>除了生命周期外，更重要的是由于高阶插件继承了 Plugin 类，所以还具备了事件系统、状态管理和专属日志打印器等。</p> <p>事件系统、状态管理在 Video.js 中都以 Mixin 的方式进行提供，在 Plugin 构造函数中会自动调用进行混合：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">class</span> <span class="token class-name">Plugin</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">player</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+
+    <span class="token comment">// Make this object evented, but remove the added `trigger` method so we</span>
+    <span class="token comment">// use the prototype version instead.</span>
+    <span class="token function">evented</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">delete</span> <span class="token keyword">this</span><span class="token punctuation">.</span>trigger<span class="token punctuation">;</span>
+
+    <span class="token function">stateful</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>constructor<span class="token punctuation">.</span>defaultState<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// ...</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>日志管理同样也以单独的模块存在，在初始化时会为每个插件创建独立的日志打印器：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">class</span> <span class="token class-name">Plugin</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">player</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>log<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">this</span><span class="token punctuation">.</span>log <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>player<span class="token punctuation">.</span>log<span class="token punctuation">.</span><span class="token function">createLogger</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// ...</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>日志消息将以播放器 ID 和插件名称作为前缀：</p> <div class="language-js extra-class"><pre class="language-js"><code>player<span class="token punctuation">.</span><span class="token function">examplePlugin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'hello world!'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// VIDEOJS: $PLAYER_ID: examplePlugin: hello world!</span>
+</code></pre></div><h2 id="总结"><a href="#总结" class="header-anchor">#</a> 总结</h2> <p>插件生态系统允许来自世界各地的作者分享他们的视频播放器定制，包括从最简单的 UI 调整到新的播放技术和源处理程序的所有内容。</p> <p>由于我们将插件视为 Video.js 的重要组成部分，因此该组织致力于维护一套强大的插件作者工具：<a href="https://github.com/videojs/generator-videojs-plugin" target="_blank" rel="noopener noreferrer">generator-videojs-plugin<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>，你还可以在 <a href="https://videojs.com/plugins/" target="_blank" rel="noopener noreferrer">https://videojs.com/plugins/<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a> 找到业界现有的优秀插件。</p> <h2 id="参考"><a href="#参考" class="header-anchor">#</a> 参考</h2> <ul><li><a href="https://docs.videojs.com/tutorial-plugins.html" target="_blank" rel="noopener noreferrer">Tutorial: plugins | Video.js Documentation<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></div> <div class="page-edit"><div class="edit-link"><a href="https://github.com/kisstar/blog/edit/master/packages/docs/posts/posts/video/2021-10-26-videojs-plugin.md" target="_blank" rel="noopener noreferrer">在 GitHub 上编辑此页</a></div> <div class="last-updated"><span class="prefix">最近更新:</span> <span class="time">2021-10-26 23:20:51</span></div></div> <div class="divider horizontal"></div> <div class="page-nav"><div class="prev"><svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M62.56 511.904L485.952 88.256a48.64 48.64 0 0 1 68.736 68.736L199.616 512.064l356.8 356.8A48.64 48.64 0 0 1 487.68 937.6l-39.744-39.744 0.256-0.256L62.528 511.936z m388.8 0L874.752 88.256a48.64 48.64 0 0 1 68.736 68.736L588.416 512.064l356.8 356.8A48.64 48.64 0 0 1 876.48 937.6l-39.776-39.744 0.288-0.256-385.664-385.664z" fill="currentColor"></path></svg> <a href="/2021/10/23/dev-tools-tech/">
+  Chrome DevTools 的常用小技巧
+</a></div> <div class="next"><a href="/2021/12/18/extensions/">
+  VS Code 开发扩展集
+</a> <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M948.064 513.056L536.064 925.312a47.296 47.296 0 0 1-66.88-66.88l345.504-345.504L467.52 165.76a47.296 47.296 0 0 1 66.88-66.88l38.688 38.688-0.256 0.256 375.264 375.264m-378.336-0.032L157.76 925.312a47.296 47.296 0 0 1-66.88-66.88l345.472-345.504L89.184 165.76a47.296 47.296 0 0 1 66.88-66.88l38.688 38.688-0.256 0.256 375.264 375.264" fill="currentColor"></path></svg></div></div> <!----> <div class="over-tip">到底了，再怎么滑也没有了 ^_^</div></article></main> <footer class="footer"><div class="copyright-container"><p><a href="https://github.com/kisstar/vuepress-theme-extreme" target="_blank" rel="noopener noreferrer">
+  vuepress-theme-extreme
+</a>
+      developed by
+      <a href="https://github.com/kisstar/" target="_blank" rel="noopener noreferrer">
+  Kisstar
+</a>
+      &amp; Powered by
+      <a href="https://vuepress.vuejs.org/" target="_blank" rel="noopener noreferrer">
+  VuePress
+</a>
+      .
+    </p> <p>Copyright © 2022. All Rights Reserved.</p></div></footer></div></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.477016c6.js" defer></script><script src="/assets/js/4.06d961f3.js" defer></script><script src="/assets/js/22.5a31903a.js" defer></script>
+  </body>
+</html>

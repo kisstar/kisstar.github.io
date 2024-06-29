@@ -1,0 +1,1 @@
+import{_ as t,o as a,c as e}from"./chunks/framework.eecc699f.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{"layout":"ph_tags"},"headers":[],"relativePath":"tags.md","filePath":"tags.md"}'),s={name:"tags.md"};function o(r,c,n,p,_,d){return a(),e("div")}const f=t(s,[["render",o]]);export{m as __pageData,f as default};

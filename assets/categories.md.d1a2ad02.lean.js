@@ -1,1 +1,0 @@
-import{_ as e,o as t,c as a}from"./chunks/framework.eecc699f.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{"layout":"ph_categories"},"headers":[],"relativePath":"categories.md","filePath":"categories.md"}'),o={name:"categories.md"};function r(s,c,i,n,p,_){return t(),a("div")}const f=e(o,[["render",r]]);export{m as __pageData,f as default};

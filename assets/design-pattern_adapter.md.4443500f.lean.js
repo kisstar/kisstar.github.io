@@ -1,0 +1,49 @@
+import{_ as a,o as n,c as l,O as p}from"./chunks/framework.97d8791f.js";const e="/assets/image-14.71279eca.png",h=JSON.parse('{"title":"适配器模式","description":"","frontmatter":{},"headers":[],"relativePath":"design-pattern/adapter.md","filePath":"design-pattern/adapter.md","lastUpdated":1748150628000}'),o={name:"design-pattern/adapter.md"};function t(c,s,r,E,i,y){return n(),l("div",null,s[0]||(s[0]=[p('<h1 id="适配器模式" tabindex="-1">适配器模式 <a class="header-anchor" href="#适配器模式" aria-label="Permalink to &quot;适配器模式&quot;">​</a></h1><p>适配器模式（Adapter Pattern）将一个接口转换成客户希望的另一个接口，适配器模式使接口不兼容的那些类可以一起工作。</p><blockquote><p>适配器模式别名为包装器。适配器模式既可以作为类结构型模式，也可以作为对象结构型模式。</p></blockquote><h2 id="示意图" tabindex="-1">示意图 <a class="header-anchor" href="#示意图" aria-label="Permalink to &quot;示意图&quot;">​</a></h2><p><img src="'+e+`" alt="Adapter Pattern"></p><h2 id="示例代码" tabindex="-1">示例代码 <a class="header-anchor" href="#示例代码" aria-label="Permalink to &quot;示例代码&quot;">​</a></h2><div class="language-typescript vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">typescript</span><pre class="shiki github-dark vp-code-dark"><code><span class="line"><span style="color:#6A737D;">// 新接口</span></span>
+<span class="line"><span style="color:#F97583;">interface</span><span style="color:#E1E4E8;"> </span><span style="color:#B392F0;">Target</span><span style="color:#E1E4E8;"> {</span></span>
+<span class="line"><span style="color:#E1E4E8;">  </span><span style="color:#B392F0;">request</span><span style="color:#E1E4E8;">()</span><span style="color:#F97583;">:</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">void</span><span style="color:#E1E4E8;">;</span></span>
+<span class="line"><span style="color:#E1E4E8;">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// 旧接口</span></span>
+<span class="line"><span style="color:#F97583;">class</span><span style="color:#E1E4E8;"> </span><span style="color:#B392F0;">Adaptee</span><span style="color:#E1E4E8;"> {</span></span>
+<span class="line"><span style="color:#E1E4E8;">  </span><span style="color:#B392F0;">specificRequest</span><span style="color:#E1E4E8;">() {</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#F97583;">return</span><span style="color:#E1E4E8;"> </span><span style="color:#9ECBFF;">&#39;Specific Request&#39;</span><span style="color:#E1E4E8;">;</span></span>
+<span class="line"><span style="color:#E1E4E8;">  }</span></span>
+<span class="line"><span style="color:#E1E4E8;">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583;">class</span><span style="color:#E1E4E8;"> </span><span style="color:#B392F0;">Adapter</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">extends</span><span style="color:#E1E4E8;"> </span><span style="color:#B392F0;">Target</span><span style="color:#E1E4E8;"> {</span></span>
+<span class="line"><span style="color:#E1E4E8;">  </span><span style="color:#F97583;">private</span><span style="color:#E1E4E8;"> </span><span style="color:#FFAB70;">adaptee</span><span style="color:#F97583;">:</span><span style="color:#E1E4E8;"> </span><span style="color:#B392F0;">Adaptee</span><span style="color:#E1E4E8;">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8;">  </span><span style="color:#F97583;">constructor</span><span style="color:#E1E4E8;">(</span><span style="color:#FFAB70;">adaptee</span><span style="color:#F97583;">:</span><span style="color:#E1E4E8;"> </span><span style="color:#B392F0;">Adaptee</span><span style="color:#E1E4E8;">) {</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#79B8FF;">this</span><span style="color:#E1E4E8;">.adaptee </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> adaptee;</span></span>
+<span class="line"><span style="color:#E1E4E8;">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8;">  </span><span style="color:#B392F0;">request</span><span style="color:#E1E4E8;">() {</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#6A737D;">// 适配旧接口方法到新接口方法</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#6A737D;">// ...</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#F97583;">return</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">this</span><span style="color:#E1E4E8;">.adaptee.</span><span style="color:#B392F0;">specificRequest</span><span style="color:#E1E4E8;">();</span></span>
+<span class="line"><span style="color:#E1E4E8;">  }</span></span>
+<span class="line"><span style="color:#E1E4E8;">}</span></span></code></pre><pre class="shiki github-light vp-code-light"><code><span class="line"><span style="color:#6A737D;">// 新接口</span></span>
+<span class="line"><span style="color:#D73A49;">interface</span><span style="color:#24292E;"> </span><span style="color:#6F42C1;">Target</span><span style="color:#24292E;"> {</span></span>
+<span class="line"><span style="color:#24292E;">  </span><span style="color:#6F42C1;">request</span><span style="color:#24292E;">()</span><span style="color:#D73A49;">:</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">void</span><span style="color:#24292E;">;</span></span>
+<span class="line"><span style="color:#24292E;">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// 旧接口</span></span>
+<span class="line"><span style="color:#D73A49;">class</span><span style="color:#24292E;"> </span><span style="color:#6F42C1;">Adaptee</span><span style="color:#24292E;"> {</span></span>
+<span class="line"><span style="color:#24292E;">  </span><span style="color:#6F42C1;">specificRequest</span><span style="color:#24292E;">() {</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#D73A49;">return</span><span style="color:#24292E;"> </span><span style="color:#032F62;">&#39;Specific Request&#39;</span><span style="color:#24292E;">;</span></span>
+<span class="line"><span style="color:#24292E;">  }</span></span>
+<span class="line"><span style="color:#24292E;">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">class</span><span style="color:#24292E;"> </span><span style="color:#6F42C1;">Adapter</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">extends</span><span style="color:#24292E;"> </span><span style="color:#6F42C1;">Target</span><span style="color:#24292E;"> {</span></span>
+<span class="line"><span style="color:#24292E;">  </span><span style="color:#D73A49;">private</span><span style="color:#24292E;"> </span><span style="color:#E36209;">adaptee</span><span style="color:#D73A49;">:</span><span style="color:#24292E;"> </span><span style="color:#6F42C1;">Adaptee</span><span style="color:#24292E;">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E;">  </span><span style="color:#D73A49;">constructor</span><span style="color:#24292E;">(</span><span style="color:#E36209;">adaptee</span><span style="color:#D73A49;">:</span><span style="color:#24292E;"> </span><span style="color:#6F42C1;">Adaptee</span><span style="color:#24292E;">) {</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#005CC5;">this</span><span style="color:#24292E;">.adaptee </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> adaptee;</span></span>
+<span class="line"><span style="color:#24292E;">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E;">  </span><span style="color:#6F42C1;">request</span><span style="color:#24292E;">() {</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#6A737D;">// 适配旧接口方法到新接口方法</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#6A737D;">// ...</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#D73A49;">return</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">this</span><span style="color:#24292E;">.adaptee.</span><span style="color:#6F42C1;">specificRequest</span><span style="color:#24292E;">();</span></span>
+<span class="line"><span style="color:#24292E;">  }</span></span>
+<span class="line"><span style="color:#24292E;">}</span></span></code></pre></div><h2 id="优缺点" tabindex="-1">优缺点 <a class="header-anchor" href="#优缺点" aria-label="Permalink to &quot;优缺点&quot;">​</a></h2><h3 id="优点" tabindex="-1">优点 <a class="header-anchor" href="#优点" aria-label="Permalink to &quot;优点&quot;">​</a></h3><ul><li>将目标类和适配者类解耦，通过引入一个适配器类来重用现有的适配者类，而无须修改原有代码。</li><li>增加了类的透明性和复用性，将具体的实现封装在适配者中，对于客户端而言是透明的，而且提高了适配者的复用性。</li><li>灵活性和扩展性都非常好，可以在不修改原有代码的基础上增加新的适配器类，符合“开闭原则”。</li></ul><h3 id="缺点" tabindex="-1">缺点 <a class="header-anchor" href="#缺点" aria-label="Permalink to &quot;缺点&quot;">​</a></h3><ul><li>在调用转换接口与适配类之间增加一层转换过程，可能会有一定的性能损耗。</li></ul><h2 id="应用场景" tabindex="-1">应用场景 <a class="header-anchor" href="#应用场景" aria-label="Permalink to &quot;应用场景&quot;">​</a></h2><ul><li>在软件系统中，由于环境的变化，经常需要将一些现存的对象放入新的环境中，而新环境要求的接口是这些现存对象所不满足的。适配器模式使得现存对象不需要修改就可以适应新的环境。</li><li>在遗留代码复用、第三方类库使用，修改一个接口时，不希望或者不值得去重写整个接口以及与之相关联的引用代码。</li></ul><h2 id="参考" tabindex="-1">参考 <a class="header-anchor" href="#参考" aria-label="Permalink to &quot;参考&quot;">​</a></h2><ul><li><a href="https://design-patterns.readthedocs.io/zh-cn/latest/structural_patterns/adapter.html" target="_blank" rel="noreferrer">适配器模式 — Graphic Design Patterns</a></li></ul>`,16)]))}const u=a(o,[["render",t]]);export{h as __pageData,u as default};
